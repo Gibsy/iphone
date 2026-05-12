@@ -9,57 +9,41 @@
 
     <style>
         :root {
-            /* Градиент для навбара */
             --ios-nav-bg: linear-gradient(to bottom, #7e9bbc 0%, #56789f 50%, #466993 50%, #3b5a81 100%);
-
-            /* Градиент для обычной кнопки "Назад" */
             --ios-back-btn-bg: linear-gradient(to bottom, #6d88ab 0%, #405f87 100%);
             --ios-back-btn-border: #314a6b;
-
-            /* Градиенты для кнопок в списке (как в медиатеке) */
             --ios-list-btn-bg: linear-gradient(to bottom, #ffffff 0%, #eaeaea 100%);
             --ios-list-btn-border: #ababab;
-            --ios-list-btn-text: #385487; /* Синий цвет текста */
+            --ios-list-btn-text: #385487;
         }
 
+        /* Убираем черную полосу снизу и подготавливаем фон */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
+            background-color: #7e9bbc; /* Цвет верхней части навбара */
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            /* Поменяй черный на цвет верхней части твоего навбара (#7e9bbc) */
-            background-color: #7e9bbc;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow: hidden;
         }
 
-        /* Главный контейнер PWA - на весь экран */
         .app-viewport {
             width: 100%;
-            height: 100%;
+            height: 100vh; /* Высота на весь экран */
+            height: 100dvh; /* Динамическая высота для мобилок */
             display: flex;
             flex-direction: column;
+            background: #000;
             position: relative;
-            overflow: hidden;
         }
 
-        /* Текстурированный фон (льняная ткань) для экранов */
-        .linen-bg {
-            background-color: #4c535d; /* Базовый цвет */
-            background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png'); /* Текстура */
-            background-size: 256px;
-        }
-
-        /* NAVBAR (высота 44px) */
+        /* NAVBAR - теперь он заходит под часы */
         .navbar {
-            /* Автоматический отступ под статус-бар iOS */
-            padding-top: env(safe-area-inset-top);
-
-            /* Увеличиваем высоту: стандартные 44px + высота статус-бара */
-            height: calc(44px + env(safe-area-inset-top));
-
+            padding-top: env(safe-area-inset-top, 20px); /* Отступ под часы */
+            height: calc(44px + env(safe-area-inset-top, 20px));
             background: var(--ios-nav-bg);
             border-bottom: 1px solid #2d3033;
             display: flex;
@@ -67,33 +51,28 @@
             justify-content: center;
             position: relative;
             z-index: 100;
+            box-sizing: border-box;
             flex-shrink: 0;
-            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
-            box-sizing: border-box; /* Важно, чтобы padding не ломал высоту */
         }
 
         .nav-title {
             color: white;
-            font-size: 20px;
+            font-size: 19px;
             font-weight: bold;
             text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 60%; /* Ограничение ширины заголовка */
+            /* Центрируем заголовок в оставшихся 44px высоты */
+            margin-top: 0;
         }
 
-        /* Кнопка "Назад" - ПРЯМОУГОЛЬНАЯ */
+        /* Кнопка "Назад" - исправлено положение */
         .back-button {
             position: absolute;
             left: 6px;
-            /* Центрируем кнопку относительно 44px навбара, прибавляя отступ */
-            top: calc(7px + env(safe-area-inset-top));
+            /* Центрируем кнопку в зоне 44px ниже статус-бара */
+            top: calc(env(safe-area-inset-top, 20px) + 7px);
             height: 29px;
-            padding: 0 13px;
+            padding: 0 12px;
             line-height: 29px;
-            /* остальной твой стиль... */
             color: white;
             font-size: 13px;
             font-weight: bold;
@@ -106,52 +85,52 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
-        .back-button:active {
-            opacity: 0.8;
-            background: #3a5579; /* Эффект нажатия */
-        }
-
-        /* SCREENS */
+        /* SCREENS - теперь они занимают все оставшееся место */
         .screen {
             position: absolute;
-            top: calc(44px + env(safe-area-inset-top));
+            top: calc(44px + env(safe-area-inset-top, 20px));
             bottom: 0;
-            width: 100%;
-            /* остальное... */
+            left: 0;
+            right: 0;
             transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
+            /* Учитываем отступ снизу для безрамочных iPhone */
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            background-color: #4c535d; /* Базовый для linen-bg */
         }
 
-        /* Стили для анимации */
+        .linen-bg {
+            background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png');
+            background-size: 256px;
+        }
+
         .screen-right { transform: translateX(100%); }
         .screen-left { transform: translateX(-100%); }
         .screen-active { transform: translateX(0); }
 
-        /* ЭКРАН 1: ГЛАВНЫЙ */
+        /* Контент главного экрана */
         .main-content {
-            padding: 25px 20px;
+            padding: 20px;
             text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex: 1;
         }
 
         .main-title {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
-            color: #111;
-            margin: 0 0 5px 0;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            color: #fff;
+            margin: 10px 0 5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
         .main-subtitle {
-            font-size: 17px;
-            color: #333;
-            margin: 0 0 25px 0;
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.8);
         }
 
         .main-image-container {
@@ -159,9 +138,9 @@
             height: 220px;
             background: #fff;
             padding: 5px;
-            border-radius: 3px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            margin-bottom: 35px;
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin: 0 auto 30px;
         }
 
         .main-image-container img {
@@ -170,86 +149,66 @@
             object-fit: cover;
         }
 
-        /* Кнопки на главном экране (как в списке медиатеки) */
         .ios-list-btn {
             display: block;
-            width: 100%;
+            width: 90%;
             max-width: 300px;
-            margin: 10px 0;
+            margin: 12px auto;
             padding: 14px;
             background: var(--ios-list-btn-bg);
             border: 1px solid var(--ios-list-btn-border);
-            border-radius: 9px;
-            font-size: 18px;
+            border-radius: 10px;
+            font-size: 17px;
             font-weight: bold;
             color: var(--ios-list-btn-text);
             text-align: center;
             text-decoration: none;
             text-shadow: 0 1px 0 white;
-            box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.1);
-            box-sizing: border-box; /* Чтобы паддинг не раздувал ширину */
+            box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        .ios-list-btn:active {
-            background: #dcdcdc; /* Эффект нажатия */
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* ЭКРАН 2: СПИСОК КЛИПОВ */
+        /* Список клипов */
         .clip-list {
             list-style: none;
             padding: 0;
             margin: 0;
-            background: #fff; /* Белый фон списка */
+            background: #fff;
+            min-height: 100%;
         }
 
         .clip-item {
             display: flex;
             align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 12px 15px;
+            border-bottom: 1px solid #cbcbcb;
             position: relative;
         }
 
-        .clip-item:last-child { border-bottom: none; }
-
-        .clip-item:active {
-            background-color: #d9d9d9; /* Эффект нажатия на строку */
-        }
-
         .clip-thumb {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 4px;
-            margin-right: 12px;
+            margin-right: 15px;
             object-fit: cover;
         }
 
-        .clip-title {
-            font-size: 17px;
-            font-weight: bold;
-            color: #000;
-        }
+        .clip-title { font-size: 17px; font-weight: bold; color: #000; }
 
-        /* Синяя стрелочка > справа */
         .arrow-right {
             position: absolute;
             right: 15px;
-            top: 50%;
-            margin-top: -6px; /* Центрирование */
             border: solid #c7c7cc;
             border-width: 0 3px 3px 0;
             display: inline-block;
             padding: 3px;
             transform: rotate(-45deg);
         }
-
     </style>
 </head>
 <body>
 
 <div class="app-viewport">
-    <div class="navbar linen-bg">
+    <div class="navbar">
         <div class="back-button" id="backBtn" onclick="goBack()">Назад</div>
         <div class="nav-title" id="navTitle">MORGENSHTERN</div>
     </div>
@@ -258,85 +217,58 @@
         <div class="main-content">
             <h1 class="main-title">MORGENSHTERN</h1>
             <p class="main-subtitle">Смотреть без интернета</p>
-
             <div class="main-image-container">
                 <img src="img/morgen.jpg" alt="Morgenshtern">
             </div>
-
             <a href="#" class="ios-list-btn" onclick="openClips()">Смотреть MORGENSHTERN</a>
             <a href="#" class="ios-list-btn">Авторы</a>
             <a href="#" class="ios-list-btn">Выход</a>
         </div>
     </div>
 
-    <div class="screen screen-right" id="clipScreen" style="background: #fff;">
+    <div class="screen screen-right" id="clipScreen">
         <ul class="clip-list">
             <li class="clip-item">
-                <img src="img/ice.jpg" class="clip-thumb" alt="Thumb">
+                <img src="img/ice.jpg" class="clip-thumb">
                 <span class="clip-title">ICE</span>
                 <span class="arrow-right"></span>
             </li>
             <li class="clip-item">
-                <img src="img/cadillac.jpg" class="clip-thumb" alt="Thumb">
+                <img src="img/cadillac.jpg" class="clip-thumb">
                 <span class="clip-title">Cadillac</span>
                 <span class="arrow-right"></span>
             </li>
             <li class="clip-item">
-                    <img src="img/dulo.jpg" class="clip-thumb" alt="Thumb">
+                <img src="img/dulo.jpg" class="clip-thumb">
                 <span class="clip-title">Дуло</span>
                 <span class="arrow-right"></span>
             </li>
-            <li class="clip-item" style="height: 40px;"></li>
-            <li class="clip-item" style="height: 40px;"></li>
-            <li class="clip-item" style="height: 40px;"></li>
+            <li class="clip-item" style="height:40px;"></li>
+            <li class="clip-item" style="height:40px;"></li>
+            <li class="clip-item" style="height:40px;"></li>
         </ul>
     </div>
 </div>
 
 <script>
-    const mainScreen = document.getElementById('mainScreen');
-    const clipScreen = document.getElementById('clipScreen');
-    const backBtn = document.getElementById('backBtn');
-    const navTitle = document.getElementById('navTitle');
-
     function openClips() {
-        // Устанавливаем заголовок
-        navTitle.innerText = "Клипы";
-
-        // Анимация ухода влево
-        mainScreen.classList.add('screen-left');
-        mainScreen.classList.remove('screen-active');
-
-        // Анимация появления справа
-        clipScreen.classList.add('screen-active');
-        clipScreen.classList.remove('screen-right');
-
-        // Показываем ПРЯМОУГОЛЬНУЮ кнопку "Назад"
-        backBtn.style.display = "block";
+        document.getElementById('navTitle').innerText = "Клипы";
+        document.getElementById('mainScreen').className = 'screen screen-left linen-bg';
+        document.getElementById('clipScreen').className = 'screen screen-active';
+        document.getElementById('backBtn').style.display = "block";
     }
 
     function goBack() {
-        // Возвращаем заголовок
-        navTitle.innerText = "MORGENSHTERN";
-
-        // Возвращаем главный экран
-        mainScreen.classList.add('screen-active');
-        mainScreen.classList.remove('screen-left');
-
-        // Уводим экран клипов
-        clipScreen.classList.add('screen-right');
-        clipScreen.classList.remove('screen-active');
-
-        // Скрываем кнопку
-        backBtn.style.display = "none";
+        document.getElementById('navTitle').innerText = "MORGENSHTERN";
+        document.getElementById('mainScreen').className = 'screen screen-active linen-bg';
+        document.getElementById('clipScreen').className = 'screen screen-right';
+        document.getElementById('backBtn').style.display = "none";
     }
 
-    // Для PWA: предотвращаем отскок (overscroll) на iOS при свайпе за пределами скроллящихся зон
-    document.addEventListener('touchmove', function(e) {
-        if (e.target.closest('.screen')) return; // Разрешить скролл внутри экранов
-        e.preventDefault();
+    // Блокировка системного "отскока" Safari
+    document.addEventListener('touchmove', (e) => {
+        if (!e.target.closest('.screen')) e.preventDefault();
     }, { passive: false });
 </script>
-<script src="sw.js"></script>
 </body>
 </html>
