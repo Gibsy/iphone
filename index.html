@@ -1,31 +1,331 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>MyApp</title>
-
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-
-    <!-- iOS PWA -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MyApp">
-    <link rel="apple-touch-icon" href="img/logo.png">
+    <title>iOS 6 Music</title>
 
-    <link rel="stylesheet" href="css/index.css">
+    <style>
+        :root {
+            /* Градиент для навбара */
+            --ios-nav-bg: linear-gradient(to bottom, #7e9bbc 0%, #56789f 50%, #466993 50%, #3b5a81 100%);
+
+            /* Градиент для обычной кнопки "Назад" */
+            --ios-back-btn-bg: linear-gradient(to bottom, #6d88ab 0%, #405f87 100%);
+            --ios-back-btn-border: #314a6b;
+
+            /* Градиенты для кнопок в списке (как в медиатеке) */
+            --ios-list-btn-bg: linear-gradient(to bottom, #ffffff 0%, #eaeaea 100%);
+            --ios-list-btn-border: #ababab;
+            --ios-list-btn-text: #385487; /* Синий цвет текста */
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #000; /* Цвет для статус-бара */
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden; /* Запрет прокрутки body */
+        }
+
+        /* Главный контейнер PWA - на весь экран */
+        .app-viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Текстурированный фон (льняная ткань) для экранов */
+        .linen-bg {
+            background-color: #4c535d; /* Базовый цвет */
+            background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png'); /* Текстура */
+            background-size: 256px;
+        }
+
+        /* NAVBAR (высота 44px) */
+        .navbar {
+            height: 44px;
+            background: var(--ios-nav-bg);
+            border-bottom: 1px solid #2d3033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 100;
+            flex-shrink: 0; /* Не сжимается */
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
+
+        .nav-title {
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60%; /* Ограничение ширины заголовка */
+        }
+
+        /* Кнопка "Назад" - ПРЯМОУГОЛЬНАЯ */
+        .back-button {
+            position: absolute;
+            left: 6px;
+            height: 29px; /* Чуть меньше высоты навбара */
+            padding: 0 13px;
+            line-height: 29px;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
+            background: var(--ios-back-btn-bg);
+            border: 1px solid var(--ios-back-btn-border);
+            border-radius: 5px; /* Скругление */
+            display: none; /* Скрыта по умолчанию */
+            cursor: pointer;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+
+        .back-button:active {
+            opacity: 0.8;
+            background: #3a5579; /* Эффект нажатия */
+        }
+
+        /* SCREENS */
+        .screen {
+            position: absolute;
+            top: 44px; /* Начинается под навбаром */
+            bottom: 0;
+            width: 100%;
+            transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1);
+            overflow-y: auto; /* Прокрутка внутри экрана */
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Стили для анимации */
+        .screen-right { transform: translateX(100%); }
+        .screen-left { transform: translateX(-100%); }
+        .screen-active { transform: translateX(0); }
+
+        /* ЭКРАН 1: ГЛАВНЫЙ */
+        .main-content {
+            padding: 25px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #111;
+            margin: 0 0 5px 0;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .main-subtitle {
+            font-size: 17px;
+            color: #333;
+            margin: 0 0 25px 0;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .main-image-container {
+            width: 220px;
+            height: 220px;
+            background: #fff;
+            padding: 5px;
+            border-radius: 3px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+            margin-bottom: 35px;
+        }
+
+        .main-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Кнопки на главном экране (как в списке медиатеки) */
+        .ios-list-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 10px 0;
+            padding: 14px;
+            background: var(--ios-list-btn-bg);
+            border: 1px solid var(--ios-list-btn-border);
+            border-radius: 9px;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--ios-list-btn-text);
+            text-align: center;
+            text-decoration: none;
+            text-shadow: 0 1px 0 white;
+            box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(0,0,0,0.1);
+            box-sizing: border-box; /* Чтобы паддинг не раздувал ширину */
+        }
+
+        .ios-list-btn:active {
+            background: #dcdcdc; /* Эффект нажатия */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* ЭКРАН 2: СПИСОК КЛИПОВ */
+        .clip-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            background: #fff; /* Белый фон списка */
+        }
+
+        .clip-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .clip-item:last-child { border-bottom: none; }
+
+        .clip-item:active {
+            background-color: #d9d9d9; /* Эффект нажатия на строку */
+        }
+
+        .clip-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            margin-right: 12px;
+            object-fit: cover;
+        }
+
+        .clip-title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Синяя стрелочка > справа */
+        .arrow-right {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            margin-top: -6px; /* Центрирование */
+            border: solid #c7c7cc;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 3px;
+            transform: rotate(-45deg);
+        }
+
+    </style>
 </head>
 <body>
-    <h1>It works 😭</h1>
-    <button onclick="hello()">click</button>
 
-    <script src="js/index.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
+<div class="app-viewport">
+    <div class="navbar linen-bg">
+        <div class="back-button" id="backBtn" onclick="goBack()">Назад</div>
+        <div class="nav-title" id="navTitle">MORGENSHTERN</div>
+    </div>
+
+    <div class="screen screen-active linen-bg" id="mainScreen">
+        <div class="main-content">
+            <h1 class="main-title">MORGENSHTERN</h1>
+            <p class="main-subtitle">Смотреть без интернета</p>
+
+            <div class="main-image-container">
+                <img src="https://i.imgur.com/1Q9Z1Zm.jpg" alt="Morgenshtern">
+            </div>
+
+            <a href="#" class="ios-list-btn" onclick="openClips()">Смотреть MORGENSHTERN</a>
+            <a href="#" class="ios-list-btn">Авторы</a>
+            <a href="#" class="ios-list-btn">Выход</a>
+        </div>
+    </div>
+
+    <div class="screen screen-right" id="clipScreen" style="background: #fff;">
+        <ul class="clip-list">
+            <li class="clip-item">
+                <img src="https://i.imgur.com/1Q9Z1Zm.jpg" class="clip-thumb" alt="Thumb">
+                <span class="clip-title">Клип 1</span>
+                <span class="arrow-right"></span>
+            </li>
+            <li class="clip-item">
+                <img src="https://i.imgur.com/1Q9Z1Zm.jpg" class="clip-thumb" alt="Thumb">
+                <span class="clip-title">Клип 2</span>
+                <span class="arrow-right"></span>
+            </li>
+            <li class="clip-item">
+                <img src="https://i.imgur.com/1Q9Z1Zm.jpg" class="clip-thumb" alt="Thumb">
+                <span class="clip-title">Клип 3</span>
+                <span class="arrow-right"></span>
+            </li>
+            <li class="clip-item" style="height: 40px;"></li>
+            <li class="clip-item" style="height: 40px;"></li>
+            <li class="clip-item" style="height: 40px;"></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const mainScreen = document.getElementById('mainScreen');
+    const clipScreen = document.getElementById('clipScreen');
+    const backBtn = document.getElementById('backBtn');
+    const navTitle = document.getElementById('navTitle');
+
+    function openClips() {
+        // Устанавливаем заголовок
+        navTitle.innerText = "Клипы";
+
+        // Анимация ухода влево
+        mainScreen.classList.add('screen-left');
+        mainScreen.classList.remove('screen-active');
+
+        // Анимация появления справа
+        clipScreen.classList.add('screen-active');
+        clipScreen.classList.remove('screen-right');
+
+        // Показываем ПРЯМОУГОЛЬНУЮ кнопку "Назад"
+        backBtn.style.display = "block";
+    }
+
+    function goBack() {
+        // Возвращаем заголовок
+        navTitle.innerText = "MORGENSHTERN";
+
+        // Возвращаем главный экран
+        mainScreen.classList.add('screen-active');
+        mainScreen.classList.remove('screen-left');
+
+        // Уводим экран клипов
+        clipScreen.classList.add('screen-right');
+        clipScreen.classList.remove('screen-active');
+
+        // Скрываем кнопку
+        backBtn.style.display = "none";
+    }
+
+    // Для PWA: предотвращаем отскок (overscroll) на iOS при свайпе за пределами скроллящихся зон
+    document.addEventListener('touchmove', function(e) {
+        if (e.target.closest('.screen')) return; // Разрешить скролл внутри экранов
+        e.preventDefault();
+    }, { passive: false });
+</script>
+<script src="sw.js"></script>
 </body>
 </html>
