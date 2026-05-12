@@ -215,14 +215,6 @@
             <li style="flex: 1; background: #fff;"></li>
         </ul>
     </div>
-
-    <div id="videoPlayerContainer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:1000;">
-        <video id="mainVideo" width="100%" height="100%" controls playsinline>
-            <source src="" type="video/mp4">
-        </video>
-        <div onclick="closeVideo()" style="position:absolute; top:20px; right:20px; color:#fff; font-weight:bold; background:rgba(0,0,0,0.5); padding:10px 15px; border-radius:20px; font-family:sans-serif;">Закрыть</div>
-    </div>
-
 </div>
 
 <script>
@@ -255,32 +247,31 @@
     }
 
     function playVideo(source) {
-        const container = document.getElementById('videoPlayerContainer');
-        const video = document.getElementById('mainVideo');
+        const video = document.getElementById('hiddenVideoPlayer');
 
         video.src = source;
-        container.style.display = 'block';
-        video.play();
+        video.load(); // Загружаем файл
 
-        // На iOS видео часто само уходит в Fullscreen, это нам и нужно
-        if (video.webkitEnterFullscreen) {
-            video.webkitEnterFullscreen();
-        }
+        // Метод play() на iOS инициирует открытие системного плеера,
+        // если вызвать его вместе с webkitEnterFullscreen
+        video.play().then(() => {
+            if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+            }
+        }).catch(error => {
+            console.log("Ошибка воспроизведения: ", error);
+        });
     }
 
-    function closeVideo() {
-        const container = document.getElementById('videoPlayerContainer');
-        const video = document.getElementById('mainVideo');
-
+    // Слушаем системное событие iOS: когда пользователь нажимает "Готово" в плеере
+    document.getElementById('hiddenVideoPlayer').addEventListener('webkitendfullscreen', function() {
+        const video = document.getElementById('hiddenVideoPlayer');
         video.pause();
-        container.style.display = 'none';
-        video.src = ""; // Очищаем путь, чтобы видео не грузилось в фоне
-    }
-
-    // Слушаем событие выхода из полноэкранного режима (для iPhone)
-    document.getElementById('mainVideo').addEventListener('webkitendfullscreen', function() {
-        closeVideo();
+        video.src = ""; // Сбрасываем видео, чтобы не ело память
     });
 </script>
+
+<video id="hiddenVideoPlayer" style="display:none;" playsinline></video>
+
 </body>
 </html>
