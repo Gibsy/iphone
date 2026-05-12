@@ -17,13 +17,13 @@
             --ios-list-btn-text: #385487;
         }
 
-        /* Убираем черную полосу снизу и подготавливаем фон */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: #7e9bbc; /* Цвет верхней части навбара */
+            /* Цвет фона теперь серый (как у текстуры), чтобы не было синей полосы снизу */
+            background-color: #4c535d;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
@@ -32,17 +32,16 @@
 
         .app-viewport {
             width: 100%;
-            height: 100vh; /* Высота на весь экран */
-            height: 100dvh; /* Динамическая высота для мобилок */
+            height: 100%;
             display: flex;
             flex-direction: column;
-            background: #000;
+            background: #4c535d; /* Фон вьюпорта тоже серый */
             position: relative;
+            overflow: hidden;
         }
 
-        /* NAVBAR - теперь он заходит под часы */
         .navbar {
-            padding-top: env(safe-area-inset-top, 20px); /* Отступ под часы */
+            padding-top: env(safe-area-inset-top, 20px);
             height: calc(44px + env(safe-area-inset-top, 20px));
             background: var(--ios-nav-bg);
             border-bottom: 1px solid #2d3033;
@@ -60,15 +59,11 @@
             font-size: 19px;
             font-weight: bold;
             text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
-            /* Центрируем заголовок в оставшихся 44px высоты */
-            margin-top: 0;
         }
 
-        /* Кнопка "Назад" - исправлено положение */
         .back-button {
             position: absolute;
             left: 6px;
-            /* Центрируем кнопку в зоне 44px ниже статус-бара */
             top: calc(env(safe-area-inset-top, 20px) + 7px);
             height: 29px;
             padding: 0 12px;
@@ -85,21 +80,21 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
-        /* SCREENS - теперь они занимают все оставшееся место */
+        /* Экраны теперь тянутся вниз автоматически */
         .screen {
-            position: absolute;
-            top: calc(44px + env(safe-area-inset-top, 20px));
-            bottom: 0;
-            left: 0;
-            right: 0;
-            transition: transform 0.4s cubic-bezier(0.3, 1, 0.3, 1);
+            flex-grow: 1; /* Растягивает экран на всю оставшуюся высоту */
+            width: 100%;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            display: flex;
+            display: none; /* Скрыты по умолчанию */
             flex-direction: column;
-            /* Учитываем отступ снизу для безрамочных iPhone */
             padding-bottom: env(safe-area-inset-bottom, 20px);
-            background-color: #4c535d; /* Базовый для linen-bg */
+            background-color: #4c535d;
+        }
+
+        /* Активный экран делаем видимым */
+        .screen-active {
+            display: flex;
         }
 
         .linen-bg {
@@ -107,15 +102,9 @@
             background-size: 256px;
         }
 
-        .screen-right { transform: translateX(100%); }
-        .screen-left { transform: translateX(-100%); }
-        .screen-active { transform: translateX(0); }
-
-        /* Контент главного экрана */
         .main-content {
             padding: 20px;
             text-align: center;
-            flex: 1;
         }
 
         .main-title {
@@ -167,7 +156,6 @@
             box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* Список клипов */
         .clip-list {
             list-style: none;
             padding: 0;
@@ -226,7 +214,7 @@
         </div>
     </div>
 
-    <div class="screen screen-right" id="clipScreen">
+    <div class="screen" id="clipScreen">
         <ul class="clip-list">
             <li class="clip-item">
                 <img src="img/ice.jpg" class="clip-thumb">
@@ -243,9 +231,7 @@
                 <span class="clip-title">Дуло</span>
                 <span class="arrow-right"></span>
             </li>
-            <li class="clip-item" style="height:40px;"></li>
-            <li class="clip-item" style="height:40px;"></li>
-            <li class="clip-item" style="height:40px;"></li>
+            <li class="clip-item" style="height:100px; background:#fff;"></li>
         </ul>
     </div>
 </div>
@@ -253,19 +239,18 @@
 <script>
     function openClips() {
         document.getElementById('navTitle').innerText = "Клипы";
-        document.getElementById('mainScreen').className = 'screen screen-left linen-bg';
-        document.getElementById('clipScreen').className = 'screen screen-active';
+        document.getElementById('mainScreen').classList.remove('screen-active');
+        document.getElementById('clipScreen').classList.add('screen-active');
         document.getElementById('backBtn').style.display = "block";
     }
 
     function goBack() {
         document.getElementById('navTitle').innerText = "MORGENSHTERN";
-        document.getElementById('mainScreen').className = 'screen screen-active linen-bg';
-        document.getElementById('clipScreen').className = 'screen screen-right';
+        document.getElementById('mainScreen').classList.add('screen-active');
+        document.getElementById('clipScreen').classList.remove('screen-active');
         document.getElementById('backBtn').style.display = "none";
     }
 
-    // Блокировка системного "отскока" Safari
     document.addEventListener('touchmove', (e) => {
         if (!e.target.closest('.screen')) e.preventDefault();
     }, { passive: false });
