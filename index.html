@@ -249,29 +249,35 @@
     function playVideo(source) {
         const video = document.getElementById('hiddenVideoPlayer');
 
+        // 1. Устанавливаем источник
         video.src = source;
-        video.load(); // Загружаем файл
 
-        // Метод play() на iOS инициирует открытие системного плеера,
-        // если вызвать его вместе с webkitEnterFullscreen
-        video.play().then(() => {
+        // 2. Сразу вызываем загрузку
+        video.load();
+
+        // 3. Используем событие 'canplay', чтобы открыть плеер мгновенно, как только пойдут первые байты
+        const startPlay = () => {
             if (video.webkitEnterFullscreen) {
                 video.webkitEnterFullscreen();
             }
-        }).catch(error => {
-            console.log("Ошибка воспроизведения: ", error);
-        });
-    }
+            video.play();
+            // Удаляем обработчик, чтобы он не копился
+            video.removeEventListener('canplay', startPlay);
+        };
 
-    // Слушаем системное событие iOS: когда пользователь нажимает "Готово" в плеере
-    document.getElementById('hiddenVideoPlayer').addEventListener('webkitendfullscreen', function() {
-        const video = document.getElementById('hiddenVideoPlayer');
-        video.pause();
-        video.src = ""; // Сбрасываем видео, чтобы не ело память
-    });
+        video.addEventListener('canplay', startPlay);
+
+        // Запасной вариант: принудительный запуск через 100мс, если событие тупит
+        setTimeout(() => {
+            if (video.paused) {
+                video.play();
+                if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+            }
+        }, 150);
+    }
 </script>
 
-<video id="hiddenVideoPlayer" style="display:none;" playsinline></video>
+<video id="hiddenVideoPlayer" style="display:none;" playsinline preload="auto"></video>
 
 </body>
 </html>
