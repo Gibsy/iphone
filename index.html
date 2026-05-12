@@ -42,7 +42,7 @@
 
         .navbar {
             padding-top: env(safe-area-inset-top, 20px);
-            height: calc(44px + env(safe-area-inset-top, 20px));
+            height: calc(30px + env(safe-area-inset-top, 20px));
             background: var(--ios-nav-bg);
             border-bottom: 1px solid #2d3033;
             display: flex;
@@ -211,20 +211,10 @@
 </div>
 
 <script>
-    // Запрещаем системный скролл на всей странице
-    document.addEventListener('touchmove', function (e) {
-        // Если мы пытаемся скроллить не внутри активного экрана — блокируем
-        if (!e.target.closest('.screen')) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
     function openClips() {
         document.getElementById('navTitle').innerText = "Клипы";
         document.getElementById('mainScreen').classList.remove('screen-active');
         document.getElementById('clipScreen').classList.add('screen-active');
-
-        // КРИТИЧЕСКИЙ МОМЕНТ: Меняем фон body на белый
         document.body.style.backgroundColor = '#ffffff';
 
         document.getElementById('backBtn').style.display = "block";
@@ -234,14 +224,10 @@
         document.getElementById('navTitle').innerText = "MORGENSHTERN";
         document.getElementById('mainScreen').classList.add('screen-active');
         document.getElementById('clipScreen').classList.remove('screen-active');
-
-        // ВОЗВРАЩАЕМ: Фон body снова серый
         document.body.style.backgroundColor = 'var(--bg-gray)';
-
         document.getElementById('backBtn').style.display = "none";
     }
 
-    // Запрет скролла всего документа, кроме .screen
     document.addEventListener('touchmove', (e) => {
         if (!e.target.closest('.screen')) e.preventDefault();
     }, { passive: false });
