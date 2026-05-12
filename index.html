@@ -197,17 +197,17 @@
 
     <div class="screen" id="clipScreen">
         <ul class="clip-list">
-            <li class="clip-item" onclick="playVideo('video/output.mp4')">
+            <li class="clip-item" onclick="playVideo('vid_ice')">
                 <img src="img/ice.jpg" class="clip-thumb">
                 <span class="clip-title">ICE</span>
                 <div class="arrow"></div>
             </li>
-            <li class="clip-item" onclick="playVideo('video/Cadillac.mp4')">
+            <li class="clip-item" onclick="playVideo('vid_cadillac')">
                 <img src="img/cadillac.jpg" class="clip-thumb">
                 <span class="clip-title">Cadillac</span>
                 <div class="arrow"></div>
             </li>
-            <li class="clip-item" onclick="playVideo('video/dulo.mp4')">
+            <li class="clip-item" onclick="playVideo('vid_dulo')">
                 <img src="img/dulo.jpg" class="clip-thumb">
                 <span class="clip-title">Дуло</span>
                 <div class="arrow"></div>
@@ -246,33 +246,25 @@
         }, 100);
     }
 
-    function playVideo(source) {
-        const video = document.getElementById('hiddenVideoPlayer');
+    function playVideo(videoId) {
+        const video = document.getElementById(videoId);
 
-        video.src = source;
-        // Начинаем загрузку
-        video.load();
-
-        // Как только браузер прочитал заголовок файла (метаданные)
-        const onMetadata = () => {
-            if (video.webkitEnterFullscreen) {
-                video.webkitEnterFullscreen();
-            }
+        if (video.readyState >= 1) {
+            if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
             video.play();
-            video.removeEventListener('loadedmetadata', onMetadata);
-        };
-
-        video.addEventListener('loadedmetadata', onMetadata);
-
-        // Принудительный пинок для iOS
-        video.play().catch(() => {
-            // Игнорируем ошибку, если автоплей заблокирован,
-            // так как пользователь нажал на кнопку сам
-        });
+        } else {
+            video.addEventListener('loadedmetadata', function handler() {
+                if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+                video.play();
+                video.removeEventListener('loadedmetadata', handler);
+            });
+        }
     }
 </script>
 
-<video id="hiddenVideoPlayer" style="display:none;" playsinline preload="auto"></video>
+<video id="vid_ice"      src="video/output.mp4"   preload="metadata" playsinline style="display:none"></video>
+<video id="vid_cadillac" src="video/Cadillac.mp4" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_dulo"     src="video/dulo.mp4"     preload="metadata" playsinline style="display:none"></video>
 
 </body>
 </html>
