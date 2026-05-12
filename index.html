@@ -145,7 +145,7 @@
         <div class="p-controls">
             <input type="range" id="p-progress" value="0" step="1">
             <div class="p-btns">
-                <button class="play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+                <button class="play-btn" id="playBtn" onclick="togglePlay()">></button>
             </div>
         </div>
     </div>
@@ -220,7 +220,7 @@
 
     function togglePlay() {
         if (audio.paused) { audio.play(); document.getElementById('playBtn').innerText = '||'; }
-        else { audio.pause(); document.getElementById('playBtn').innerText = '▶'; }
+        else { audio.pause(); document.getElementById('playBtn').innerText = '>'; }
     }
 
     audio.ontimeupdate = () => { prog.max = audio.duration; prog.value = audio.currentTime; };
