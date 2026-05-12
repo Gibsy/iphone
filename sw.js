@@ -12,7 +12,6 @@ const FILES = [
 const VIDEOS = [
   '/video/output.mp4',
   '/video/Cadillac.mp4',
-  '/video/dulo.mp4'
 ];
 
 // ─── IndexedDB helpers ───────────────────────────────────────────────────────
