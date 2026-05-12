@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
-    <link rel="apple-touch-icon" href="img/morgen.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="img/morgen.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="img/morgen.png">
-    <link rel="apple-touch-icon" sizes="167x167" href="img/morgen.png">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>MORGENSTERN</title>
-
     <style>
+        /* [Вставь свои CSS стили здесь] */
         :root {
             --ios-nav-bg: linear-gradient(to bottom, #7e9bbc 0%, #56789f 50%, #466993 50%, #3b5a81 100%);
             --ios-back-btn-bg: linear-gradient(to bottom, #6d88ab 0%, #405f87 100%);
@@ -111,7 +105,6 @@
             box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* Полоска загрузки видео */
         #downloadBar {
             display: none;
             margin: 8px auto 0;
@@ -178,7 +171,6 @@
             <a href="https://github.com/Gibsy" target="_blank" class="ios-list-btn">Авторы</a>
             <a href="#" class="ios-list-btn" onclick="exitApp()">Выход</a>
 
-            <!-- Прогресс скачивания видео -->
             <div id="downloadBar">
                 <span id="downloadLabel">Сохраняем видео для офлайн…</span>
                 <div id="downloadProgress"><div id="downloadFill"></div></div>
@@ -208,39 +200,20 @@
     </div>
 </div>
 
-<video id="vid_ice"      src="video/output.mp4"   preload="metadata" playsinline style="display:none"></video>
-<video id="vid_cadillac" src="video/Cadillac.mp4" preload="metadata" playsinline style="display:none"></video>
-<video id="vid_dulo"     src="video/dulo.mp4"     preload="metadata" playsinline style="display:none"></video>
+<video id="vid_ice" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_cadillac" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_dulo" preload="metadata" playsinline style="display:none"></video>
 
 <script>
+    const SRC_MAP = {
+        vid_ice:      'video/output.mp4',
+        vid_cadillac: 'video/Cadillac.mp4',
+        vid_dulo:     'video/dulo.mp4'
+    };
 
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-            // Ждём пока SW активируется, потом скачиваем видео
-            const sw = reg.installing || reg.waiting || reg.active;
-            if (reg.active) {
-                downloadVideos();
-            } else {
-                sw.addEventListener('statechange', e => {
-                    if (e.target.state === 'activated') downloadVideos();
-                });
-            }
-        });
+    const VIDEO_URLS = Object.values(SRC_MAP);
 
-        navigator.serviceWorker.addEventListener('message', e => {
-            if (e.data === 'VIDEOS_READY') {
-                document.getElementById('downloadBar').style.display = 'none';
-                console.log('Все видео сохранены офлайн ✓');
-            }
-        });
-    }
-
-    const VIDEO_URLS = [
-        'video/output.mp4',
-        'video/Cadillac.mp4',
-        'video/dulo.mp4'
-    ];
-
+    // --- ФУНКЦИИ БАЗЫ ДАННЫХ ---
     function openDB() {
         return new Promise((res, rej) => {
             const req = indexedDB.open('videoDB', 1);
@@ -252,8 +225,7 @@
 
     function getVideoDB(db, url) {
         return new Promise((res, rej) => {
-            const req = db.transaction('videos', 'readonly')
-                .objectStore('videos').get(url);
+            const req = db.transaction('videos', 'readonly').objectStore('videos').get(url);
             req.onsuccess = e => res(e.target.result);
             req.onerror   = e => rej(e.target.error);
         });
@@ -264,51 +236,76 @@
             const tx = db.transaction('videos', 'readwrite');
             tx.objectStore('videos').put(blob, url);
             tx.oncomplete = res;
-            tx.onerror    = e => rej(e.target.error);
+            tx.onerror = e => rej(e.target.error);
         });
     }
 
+    // --- ЛОГИКА ПРИЛОЖЕНИЯ ---
     async function downloadVideos() {
         const db = await openDB();
         let downloaded = 0;
+        let total = VIDEO_URLS.length;
 
         for (const url of VIDEO_URLS) {
             const existing = await getVideoDB(db, url).catch(() => undefined);
             if (existing) {
                 downloaded++;
-                updateProgress(downloaded, VIDEO_URLS.length);
                 continue;
             }
 
-            // Показываем полоску только если есть что качать
             document.getElementById('downloadBar').style.display = 'block';
-
             try {
-                const blob = await fetch(url).then(r => r.blob());
+                const response = await fetch(url);
+                const blob = await response.blob();
                 await saveVideoDB(db, url, blob);
                 downloaded++;
-                updateProgress(downloaded, VIDEO_URLS.length);
-            } catch (err) {
-                console.warn('Не удалось сохранить видео:', url, err);
-                downloaded++;
-            }
+                updateProgress(downloaded, total);
+            } catch (err) { console.error('Ошибка загрузки:', url); }
         }
 
-        if (downloaded === VIDEO_URLS.length) {
+        if (downloaded === total) {
             document.getElementById('downloadLabel').textContent = 'Видео готовы ✓';
-            setTimeout(() => {
-                document.getElementById('downloadBar').style.display = 'none';
-            }, 2000);
+            setTimeout(() => { document.getElementById('downloadBar').style.display = 'none'; }, 2000);
         }
     }
 
     function updateProgress(done, total) {
         const pct = Math.round((done / total) * 100);
         document.getElementById('downloadFill').style.width = pct + '%';
-        document.getElementById('downloadLabel').textContent =
-            `Сохраняем видео… ${done}/${total}`;
+        document.getElementById('downloadLabel').textContent = `Сохраняем видео… ${done}/${total}`;
     }
 
+    async function playVideo(videoId) {
+        const video = document.getElementById(videoId);
+        const url = SRC_MAP[videoId];
+
+        if (!video.dataset.blobLoaded) {
+            try {
+                const db = await openDB();
+                const blob = await getVideoDB(db, url);
+                if (blob) {
+                    video.src = URL.createObjectURL(blob);
+                    video.dataset.blobLoaded = '1';
+                } else {
+                    video.src = url; // Фолбэк на сеть
+                }
+            } catch (e) { video.src = url; }
+            video.load();
+        }
+
+        const start = () => {
+            if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+            video.play();
+        };
+
+        if (video.readyState >= 2) {
+            start();
+        } else {
+            video.addEventListener('loadeddata', start, { once: true });
+        }
+    }
+
+    // --- НАВИГАЦИЯ ---
     function openClips() {
         document.getElementById('navTitle').innerText = 'Клипы';
         document.getElementById('mainScreen').classList.remove('screen-active');
@@ -330,43 +327,8 @@
         setTimeout(() => { window.location.href = 'about:blank'; }, 100);
     }
 
-    document.addEventListener('touchmove', (e) => {
-        if (!e.target.closest('.screen')) e.preventDefault();
-    }, { passive: false });
-
-    async function playVideo(videoId) {
-        const video = document.getElementById(videoId);
-
-        if (!video.dataset.blobLoaded) {
-            try {
-                const db   = await openDB();
-                const srcMap = {
-                    vid_ice:      'video/output.mp4',
-                    vid_cadillac: 'video/Cadillac.mp4',
-                    vid_dulo:     'video/dulo.mp4'
-                };
-                const blob = await getVideoDB(db, srcMap[videoId]);
-                if (blob) {
-                    video.src = URL.createObjectURL(blob);
-                    video.dataset.blobLoaded = '1';
-                    await video.load();
-                }
-            } catch (e) {
-            }
-        }
-
-        if (video.readyState >= 1) {
-            if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-            video.play();
-        } else {
-            video.addEventListener('loadedmetadata', function handler() {
-                if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-                video.play();
-                video.removeEventListener('loadedmetadata', handler);
-            });
-        }
-    }
+    // Запуск скачивания при загрузке страницы
+    window.addEventListener('load', downloadVideos);
 </script>
-
 </body>
 </html>
