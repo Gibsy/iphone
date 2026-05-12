@@ -210,9 +210,9 @@
     </div>
 </div>
 
-<video id="vid_ice"      preload="metadata" playsinline style="position:absolute; visibility:hidden; width:1px; height:1px;"></video>
-<video id="vid_cadillac" preload="metadata" playsinline style="position:absolute; visibility:hidden; width:1px; height:1px;"></video>
-<video id="vid_dulo"     preload="metadata" playsinline style="position:absolute; visibility:hidden; width:1px; height:1px;"></video>
+<video id="vid_ice"      preload="metadata" playsinline style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:#000;"></video>
+<video id="vid_cadillac" preload="metadata" playsinline style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:#000;"></video>
+<video id="vid_dulo"     preload="metadata" playsinline style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; background:#000;"></video>
 
 <script>
     const SRC_MAP = {
@@ -299,18 +299,14 @@
         const video = document.getElementById(videoId);
         const url = SRC_MAP[videoId];
 
-        // Перед запуском делаем элемент видимым, чтобы iOS отрисовала кадры
-        video.style.visibility = 'visible';
-        video.style.width = '100%';
-        video.style.height = '100%';
+        // 1. Показываем элемент перед загрузкой
+        video.style.display = 'block';
 
         if (!video.dataset.blobLoaded) {
             const db = await openDB();
             const blob = await getVideoDB(db, url);
             if (blob) {
-                // Очищаем старую ссылку если была
                 if (video.src) URL.revokeObjectURL(video.src);
-
                 video.src = URL.createObjectURL(blob);
                 video.dataset.blobLoaded = '1';
                 video.load();
@@ -320,17 +316,21 @@
         }
 
         const start = () => {
-            if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+            if (video.webkitEnterFullscreen) {
+                video.webkitEnterFullscreen();
+            }
             video.play().catch(e => console.log("Play failed", e));
         };
 
-        // Слушаем выход из фуллскрина, чтобы вернуть скрытность
-        video.onwebkitendfullscreen = () => {
+        // 2. ЖЕСТКОЕ скрытие при выходе из полноэкранного режима
+        const hideVideo = () => {
             video.pause();
-            video.style.visibility = 'hidden';
-            video.style.width = '1px';
-            video.style.height = '1px';
+            video.style.display = 'none'; // Убираем полностью
+            video.currentTime = 0; // Сбрасываем в начало, чтобы не висел кадр
         };
+
+        video.onwebkitendfullscreen = hideVideo;
+        video.onended = hideVideo; // На случай если видео досмотрели до конца
 
         if (video.readyState >= 2) start();
         else video.addEventListener('loadeddata', start, { once: true });
