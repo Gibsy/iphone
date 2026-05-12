@@ -168,6 +168,10 @@
             border-right: 3px solid #c7c7cc;
             transform: rotate(45deg);
         }
+
+        .clip-item:active {
+            background-color: #d9d9d9;
+        }
     </style>
 </head>
 <body>
@@ -193,17 +197,17 @@
 
     <div class="screen" id="clipScreen">
         <ul class="clip-list">
-            <li class="clip-item">
+            <li class="clip-item" onclick="playVideo('video/ice.mp4')">
                 <img src="img/ice.jpg" class="clip-thumb">
                 <span class="clip-title">ICE</span>
                 <div class="arrow"></div>
             </li>
-            <li class="clip-item">
+            <li class="clip-item" onclick="playVideo('video/cadillac.mp4')">
                 <img src="img/cadillac.jpg" class="clip-thumb">
                 <span class="clip-title">Cadillac</span>
                 <div class="arrow"></div>
             </li>
-            <li class="clip-item">
+            <li class="clip-item" onclick="playVideo('video/dulo.mp4')">
                 <img src="img/dulo.jpg" class="clip-thumb">
                 <span class="clip-title">Дуло</span>
                 <div class="arrow"></div>
@@ -211,6 +215,14 @@
             <li style="flex: 1; background: #fff;"></li>
         </ul>
     </div>
+
+    <div id="videoPlayerContainer" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:1000;">
+        <video id="mainVideo" width="100%" height="100%" controls playsinline>
+            <source src="" type="video/mp4">
+        </video>
+        <div onclick="closeVideo()" style="position:absolute; top:20px; right:20px; color:#fff; font-weight:bold; background:rgba(0,0,0,0.5); padding:10px 15px; border-radius:20px; font-family:sans-serif;">Закрыть</div>
+    </div>
+
 </div>
 
 <script>
@@ -241,6 +253,34 @@
             window.location.href = "about:blank";
         }, 100);
     }
+
+    function playVideo(source) {
+        const container = document.getElementById('videoPlayerContainer');
+        const video = document.getElementById('mainVideo');
+
+        video.src = source;
+        container.style.display = 'block';
+        video.play();
+
+        // На iOS видео часто само уходит в Fullscreen, это нам и нужно
+        if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
+        }
+    }
+
+    function closeVideo() {
+        const container = document.getElementById('videoPlayerContainer');
+        const video = document.getElementById('mainVideo');
+
+        video.pause();
+        container.style.display = 'none';
+        video.src = ""; // Очищаем путь, чтобы видео не грузилось в фоне
+    }
+
+    // Слушаем событие выхода из полноэкранного режима (для iPhone)
+    document.getElementById('mainVideo').addEventListener('webkitendfullscreen', function() {
+        closeVideo();
+    });
 </script>
 </body>
 </html>
