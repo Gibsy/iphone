@@ -25,11 +25,12 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-gray); /* Теперь снизу будет серо, а не сине */
+            background-color: var(--bg-gray); /* По умолчанию серый */
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow: hidden;
+            transition: background-color 0.3s ease; /* Плавная смена фона */
         }
 
         .app-viewport {
@@ -39,12 +40,11 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            background-color: var(--bg-gray);
+            background-color: transparent; /* Вьюпорт теперь прозрачный */
         }
 
         /* NAVBAR */
         .navbar {
-            /* Добавляем отступ под часы сверху */
             padding-top: env(safe-area-inset-top, 20px);
             height: calc(44px + env(safe-area-inset-top, 20px));
             background: var(--ios-nav-bg);
@@ -91,7 +91,6 @@
             flex-direction: column;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            /* Отступ снизу для безрамочных iPhone */
             padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
@@ -216,6 +215,10 @@
                 <img src="img/cadillac.jpg" class="clip-thumb">
                 <span class="clip-title">Cadillac</span>
             </li>
+            <li class="clip-item">
+                <img src="img/dulo.jpg" class="clip-thumb">
+                <span class="clip-title">Дуло</span>
+            </li>
         </ul>
     </div>
 </div>
@@ -225,6 +228,10 @@
         document.getElementById('navTitle').innerText = "Клипы";
         document.getElementById('mainScreen').classList.remove('screen-active');
         document.getElementById('clipScreen').classList.add('screen-active');
+
+        // КРИТИЧЕСКИЙ МОМЕНТ: Меняем фон body на белый
+        document.body.style.backgroundColor = '#ffffff';
+
         document.getElementById('backBtn').style.display = "block";
     }
 
@@ -232,6 +239,10 @@
         document.getElementById('navTitle').innerText = "MORGENSHTERN";
         document.getElementById('mainScreen').classList.add('screen-active');
         document.getElementById('clipScreen').classList.remove('screen-active');
+
+        // ВОЗВРАЩАЕМ: Фон body снова серый
+        document.body.style.backgroundColor = 'var(--bg-gray)';
+
         document.getElementById('backBtn').style.display = "none";
     }
 
