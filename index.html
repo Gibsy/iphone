@@ -249,31 +249,26 @@
     function playVideo(source) {
         const video = document.getElementById('hiddenVideoPlayer');
 
-        // 1. Устанавливаем источник
         video.src = source;
-
-        // 2. Сразу вызываем загрузку
+        // Начинаем загрузку
         video.load();
 
-        // 3. Используем событие 'canplay', чтобы открыть плеер мгновенно, как только пойдут первые байты
-        const startPlay = () => {
+        // Как только браузер прочитал заголовок файла (метаданные)
+        const onMetadata = () => {
             if (video.webkitEnterFullscreen) {
                 video.webkitEnterFullscreen();
             }
             video.play();
-            // Удаляем обработчик, чтобы он не копился
-            video.removeEventListener('canplay', startPlay);
+            video.removeEventListener('loadedmetadata', onMetadata);
         };
 
-        video.addEventListener('canplay', startPlay);
+        video.addEventListener('loadedmetadata', onMetadata);
 
-        // Запасной вариант: принудительный запуск через 100мс, если событие тупит
-        setTimeout(() => {
-            if (video.paused) {
-                video.play();
-                if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
-            }
-        }, 150);
+        // Принудительный пинок для iOS
+        video.play().catch(() => {
+            // Игнорируем ошибку, если автоплей заблокирован,
+            // так как пользователь нажал на кнопку сам
+        });
     }
 </script>
 
