@@ -236,9 +236,9 @@
     }
 
     const VIDEO_URLS = [
-        '/video/output.mp4',
-        '/video/Cadillac.mp4',
-        '/video/dulo.mp4'
+        'video/output.mp4',
+        'video/Cadillac.mp4',
+        'video/dulo.mp4'
     ];
 
     function openDB() {
@@ -341,9 +341,9 @@
             try {
                 const db   = await openDB();
                 const srcMap = {
-                    vid_ice:      '/video/output.mp4',
-                    vid_cadillac: '/video/Cadillac.mp4',
-                    vid_dulo:     '/video/dulo.mp4'
+                    vid_ice:      'video/output.mp4',
+                    vid_cadillac: 'video/Cadillac.mp4',
+                    vid_dulo:     'video/dulo.mp4'
                 };
                 const blob = await getVideoDB(db, srcMap[videoId]);
                 if (blob) {
