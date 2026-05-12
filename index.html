@@ -28,6 +28,8 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow: hidden;
+
+            overscroll-behavior: none;
         }
 
         .app-viewport {
@@ -209,6 +211,14 @@
 </div>
 
 <script>
+    // Запрещаем системный скролл на всей странице
+    document.addEventListener('touchmove', function (e) {
+        // Если мы пытаемся скроллить не внутри активного экрана — блокируем
+        if (!e.target.closest('.screen')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     function openClips() {
         document.getElementById('navTitle').innerText = "Клипы";
         document.getElementById('mainScreen').classList.remove('screen-active');
