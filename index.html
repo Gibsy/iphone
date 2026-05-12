@@ -25,25 +25,19 @@
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
             background-color: var(--bg-gray);
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow: hidden;
-
             overscroll-behavior: none;
         }
 
         .app-viewport {
-            width: 100%;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            background-color: transparent;
+            width: 100%; height: 100dvh;
+            display: flex; flex-direction: column;
         }
 
         .navbar {
@@ -51,18 +45,12 @@
             height: calc(28px + env(safe-area-inset-top, 20px));
             background: var(--ios-nav-bg);
             border-bottom: 1px solid #2d3033;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            z-index: 100;
-            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 100; flex-shrink: 0;
         }
 
         .nav-title {
-            color: white;
-            font-size: 19px;
-            font-weight: bold;
+            color: white; font-size: 19px; font-weight: bold;
             text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
         }
 
@@ -70,29 +58,20 @@
             position: absolute;
             left: 6px;
             top: calc(env(safe-area-inset-top, 20px) + 7px);
-            height: 29px;
-            padding: 0 12px;
-            line-height: 29px;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
+            height: 29px; padding: 0 12px; line-height: 29px;
+            color: white; font-size: 12px; font-weight: bold;
             background: var(--ios-back-btn-bg);
             border: 1px solid var(--ios-back-btn-border);
-            border-radius: 5px;
-            display: none;
+            border-radius: 5px; display: none;
             text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
         .screen {
-            flex: 1;
-            width: 100%;
-            display: none;
+            flex: 1; width: 100%; display: none;
             flex-direction: column;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
-
         .screen-active { display: flex; }
 
         .linen-bg {
@@ -103,9 +82,7 @@
         .main-content { padding: 20px; text-align: center; }
 
         .main-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #fff;
+            font-size: 24px; font-weight: bold; color: #fff;
             margin: 10px 0 5px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
@@ -119,7 +96,6 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             margin: 0 auto 30px;
         }
-
         .main-image-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .ios-list-btn {
@@ -135,29 +111,42 @@
             box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
         }
 
+        /* Полоска загрузки видео */
+        #downloadBar {
+            display: none;
+            margin: 8px auto 0;
+            width: 90%; max-width: 300px;
+            font-size: 13px; color: #ccc;
+            text-align: center;
+        }
+        #downloadProgress {
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px; margin-top: 4px; overflow: hidden;
+        }
+        #downloadFill {
+            height: 100%; width: 0%;
+            background: #6aab6a;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
         .clip-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            background: #fff;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+            list-style: none; padding: 0; margin: 0;
+            background: #fff; flex: 1; display: flex; flex-direction: column;
         }
 
         .clip-item {
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center;
             padding: 10px 15px;
             border-bottom: 1px solid #cbcbcb;
             background: #fff;
         }
+        .clip-item:active { background-color: #d9d9d9; }
 
         .clip-thumb {
             width: 44px; height: 44px;
-            border-radius: 4px;
-            margin-right: 12px;
-            object-fit: cover;
+            border-radius: 4px; margin-right: 12px; object-fit: cover;
         }
 
         .clip-title { font-size: 17px; font-weight: bold; color: #000; flex: 1; }
@@ -167,10 +156,6 @@
             border-top: 3px solid #c7c7cc;
             border-right: 3px solid #c7c7cc;
             transform: rotate(45deg);
-        }
-
-        .clip-item:active {
-            background-color: #d9d9d9;
         }
     </style>
 </head>
@@ -192,6 +177,12 @@
             <a href="#" class="ios-list-btn" onclick="openClips()">Смотреть MORGENSHTERN</a>
             <a href="https://github.com/Gibsy" target="_blank" class="ios-list-btn">Авторы</a>
             <a href="#" class="ios-list-btn" onclick="exitApp()">Выход</a>
+
+            <!-- Прогресс скачивания видео -->
+            <div id="downloadBar">
+                <span id="downloadLabel">Сохраняем видео для офлайн…</span>
+                <div id="downloadProgress"><div id="downloadFill"></div></div>
+            </div>
         </div>
     </div>
 
@@ -217,37 +208,152 @@
     </div>
 </div>
 
+<video id="vid_ice"      src="video/output.mp4"   preload="metadata" playsinline style="display:none"></video>
+<video id="vid_cadillac" src="video/Cadillac.mp4" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_dulo"     src="video/dulo.mp4"     preload="metadata" playsinline style="display:none"></video>
+
 <script>
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+            // Ждём пока SW активируется, потом скачиваем видео
+            const sw = reg.installing || reg.waiting || reg.active;
+            if (reg.active) {
+                downloadVideos();
+            } else {
+                sw.addEventListener('statechange', e => {
+                    if (e.target.state === 'activated') downloadVideos();
+                });
+            }
+        });
+
+        navigator.serviceWorker.addEventListener('message', e => {
+            if (e.data === 'VIDEOS_READY') {
+                document.getElementById('downloadBar').style.display = 'none';
+                console.log('Все видео сохранены офлайн ✓');
+            }
+        });
+    }
+
+    const VIDEO_URLS = [
+        '/video/output.mp4',
+        '/video/Cadillac.mp4',
+        '/video/dulo.mp4'
+    ];
+
+    function openDB() {
+        return new Promise((res, rej) => {
+            const req = indexedDB.open('videoDB', 1);
+            req.onupgradeneeded = e => e.target.result.createObjectStore('videos');
+            req.onsuccess = e => res(e.target.result);
+            req.onerror   = e => rej(e.target.error);
+        });
+    }
+
+    function getVideoDB(db, url) {
+        return new Promise((res, rej) => {
+            const req = db.transaction('videos', 'readonly')
+                .objectStore('videos').get(url);
+            req.onsuccess = e => res(e.target.result);
+            req.onerror   = e => rej(e.target.error);
+        });
+    }
+
+    function saveVideoDB(db, url, blob) {
+        return new Promise((res, rej) => {
+            const tx = db.transaction('videos', 'readwrite');
+            tx.objectStore('videos').put(blob, url);
+            tx.oncomplete = res;
+            tx.onerror    = e => rej(e.target.error);
+        });
+    }
+
+    async function downloadVideos() {
+        const db = await openDB();
+        let downloaded = 0;
+
+        for (const url of VIDEO_URLS) {
+            const existing = await getVideoDB(db, url).catch(() => undefined);
+            if (existing) {
+                downloaded++;
+                updateProgress(downloaded, VIDEO_URLS.length);
+                continue;
+            }
+
+            // Показываем полоску только если есть что качать
+            document.getElementById('downloadBar').style.display = 'block';
+
+            try {
+                const blob = await fetch(url).then(r => r.blob());
+                await saveVideoDB(db, url, blob);
+                downloaded++;
+                updateProgress(downloaded, VIDEO_URLS.length);
+            } catch (err) {
+                console.warn('Не удалось сохранить видео:', url, err);
+                downloaded++;
+            }
+        }
+
+        if (downloaded === VIDEO_URLS.length) {
+            document.getElementById('downloadLabel').textContent = 'Видео готовы ✓';
+            setTimeout(() => {
+                document.getElementById('downloadBar').style.display = 'none';
+            }, 2000);
+        }
+    }
+
+    function updateProgress(done, total) {
+        const pct = Math.round((done / total) * 100);
+        document.getElementById('downloadFill').style.width = pct + '%';
+        document.getElementById('downloadLabel').textContent =
+            `Сохраняем видео… ${done}/${total}`;
+    }
+
     function openClips() {
-        document.getElementById('navTitle').innerText = "Клипы";
+        document.getElementById('navTitle').innerText = 'Клипы';
         document.getElementById('mainScreen').classList.remove('screen-active');
         document.getElementById('clipScreen').classList.add('screen-active');
         document.body.style.backgroundColor = '#ffffff';
-
-        document.getElementById('backBtn').style.display = "block";
+        document.getElementById('backBtn').style.display = 'block';
     }
 
     function goBack() {
-        document.getElementById('navTitle').innerText = "MORGENSHTERN";
+        document.getElementById('navTitle').innerText = 'MORGENSHTERN';
         document.getElementById('mainScreen').classList.add('screen-active');
         document.getElementById('clipScreen').classList.remove('screen-active');
         document.body.style.backgroundColor = 'var(--bg-gray)';
-        document.getElementById('backBtn').style.display = "none";
+        document.getElementById('backBtn').style.display = 'none';
+    }
+
+    function exitApp() {
+        window.close();
+        setTimeout(() => { window.location.href = 'about:blank'; }, 100);
     }
 
     document.addEventListener('touchmove', (e) => {
         if (!e.target.closest('.screen')) e.preventDefault();
     }, { passive: false });
 
-    function exitApp() {
-        window.close();
-        setTimeout(function() {
-            window.location.href = "about:blank";
-        }, 100);
-    }
-
-    function playVideo(videoId) {
+    async function playVideo(videoId) {
         const video = document.getElementById(videoId);
+
+        if (!video.dataset.blobLoaded) {
+            try {
+                const db   = await openDB();
+                const srcMap = {
+                    vid_ice:      '/video/output.mp4',
+                    vid_cadillac: '/video/Cadillac.mp4',
+                    vid_dulo:     '/video/dulo.mp4'
+                };
+                const blob = await getVideoDB(db, srcMap[videoId]);
+                if (blob) {
+                    video.src = URL.createObjectURL(blob);
+                    video.dataset.blobLoaded = '1';
+                    await video.load();
+                }
+            } catch (e) {
+            }
+        }
 
         if (video.readyState >= 1) {
             if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
@@ -261,10 +367,6 @@
         }
     }
 </script>
-
-<video id="vid_ice"      src="video/output.mp4"   preload="metadata" playsinline style="display:none"></video>
-<video id="vid_cadillac" src="video/Cadillac.mp4" preload="metadata" playsinline style="display:none"></video>
-<video id="vid_dulo"     src="video/dulo.mp4"     preload="metadata" playsinline style="display:none"></video>
 
 </body>
 </html>
