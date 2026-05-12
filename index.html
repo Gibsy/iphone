@@ -3,154 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="apple-touch-icon" href="img/morgen.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>MORGENSTERN</title>
-    <style>
-        /* [Вставь свои CSS стили здесь] */
-        :root {
-            --ios-nav-bg: linear-gradient(to bottom, #7e9bbc 0%, #56789f 50%, #466993 50%, #3b5a81 100%);
-            --ios-back-btn-bg: linear-gradient(to bottom, #6d88ab 0%, #405f87 100%);
-            --ios-back-btn-border: #314a6b;
-            --ios-list-btn-bg: linear-gradient(to bottom, #ffffff 0%, #eaeaea 100%);
-            --ios-list-btn-border: #ababab;
-            --ios-list-btn-text: #385487;
-            --bg-gray: #4c535d;
-        }
-
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: var(--bg-gray);
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            overflow: hidden;
-            overscroll-behavior: none;
-        }
-
-        .app-viewport {
-            width: 100%; height: 100dvh;
-            display: flex; flex-direction: column;
-        }
-
-        .navbar {
-            padding-top: env(safe-area-inset-top, 20px);
-            height: calc(28px + env(safe-area-inset-top, 20px));
-            background: var(--ios-nav-bg);
-            border-bottom: 1px solid #2d3033;
-            display: flex; align-items: center; justify-content: center;
-            position: relative; z-index: 100; flex-shrink: 0;
-        }
-
-        .nav-title {
-            color: white; font-size: 19px; font-weight: bold;
-            text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
-        }
-
-        .back-button {
-            position: absolute;
-            left: 6px;
-            top: calc(env(safe-area-inset-top, 20px) + 7px);
-            height: 29px; padding: 0 12px; line-height: 29px;
-            color: white; font-size: 12px; font-weight: bold;
-            background: var(--ios-back-btn-bg);
-            border: 1px solid var(--ios-back-btn-border);
-            border-radius: 5px; display: none;
-            text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
-        }
-
-        .screen {
-            flex: 1; width: 100%; display: none;
-            flex-direction: column;
-            overflow-y: auto; -webkit-overflow-scrolling: touch;
-        }
-        .screen-active { display: flex; }
-
-        .linen-bg {
-            background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png');
-            background-size: 256px;
-        }
-
-        .main-content { padding: 20px; text-align: center; }
-
-        .main-title {
-            font-size: 24px; font-weight: bold; color: #fff;
-            margin: 10px 0 5px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-        }
-
-        .main-subtitle { color: #ccc; margin-bottom: 20px; }
-
-        .main-image-container {
-            width: 220px; height: 220px;
-            background: #fff; padding: 5px;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            margin: 0 auto 30px;
-        }
-        .main-image-container img { width: 100%; height: 100%; object-fit: cover; }
-
-        .ios-list-btn {
-            display: block; width: 90%; max-width: 300px;
-            margin: 12px auto; padding: 14px;
-            background: var(--ios-list-btn-bg);
-            border: 1px solid var(--ios-list-btn-border);
-            border-radius: 10px;
-            font-size: 17px; font-weight: bold;
-            color: var(--ios-list-btn-text);
-            text-align: center; text-decoration: none;
-            text-shadow: 0 1px 0 white;
-            box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        #downloadBar {
-            display: none;
-            margin: 8px auto 0;
-            width: 90%; max-width: 300px;
-            font-size: 13px; color: #ccc;
-            text-align: center;
-        }
-        #downloadProgress {
-            width: 100%; height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px; margin-top: 4px; overflow: hidden;
-        }
-        #downloadFill {
-            height: 100%; width: 0%;
-            background: #6aab6a;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
-
-        .clip-list {
-            list-style: none; padding: 0; margin: 0;
-            background: #fff; flex: 1; display: flex; flex-direction: column;
-        }
-
-        .clip-item {
-            display: flex; align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid #cbcbcb;
-            background: #fff;
-        }
-        .clip-item:active { background-color: #d9d9d9; }
-
-        .clip-thumb {
-            width: 44px; height: 44px;
-            border-radius: 4px; margin-right: 12px; object-fit: cover;
-        }
-
-        .clip-title { font-size: 17px; font-weight: bold; color: #000; flex: 1; }
-
-        .arrow {
-            width: 10px; height: 10px;
-            border-top: 3px solid #c7c7cc;
-            border-right: 3px solid #c7c7cc;
-            transform: rotate(45deg);
-        }
-    </style>
 </head>
 <body>
 
@@ -200,9 +56,9 @@
     </div>
 </div>
 
-<video id="vid_ice" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_ice"      preload="metadata" playsinline style="display:none"></video>
 <video id="vid_cadillac" preload="metadata" playsinline style="display:none"></video>
-<video id="vid_dulo" preload="metadata" playsinline style="display:none"></video>
+<video id="vid_dulo"     preload="metadata" playsinline style="display:none"></video>
 
 <script>
     const SRC_MAP = {
@@ -213,7 +69,12 @@
 
     const VIDEO_URLS = Object.values(SRC_MAP);
 
-    // --- ФУНКЦИИ БАЗЫ ДАННЫХ ---
+    // --- Регистрация Service Worker ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+
+    // --- IndexedDB Helpers ---
     function openDB() {
         return new Promise((res, rej) => {
             const req = indexedDB.open('videoDB', 1);
@@ -223,50 +84,48 @@
         });
     }
 
-    function getVideoDB(db, url) {
-        return new Promise((res, rej) => {
+    async function getVideoDB(db, url) {
+        return new Promise((res) => {
             const req = db.transaction('videos', 'readonly').objectStore('videos').get(url);
             req.onsuccess = e => res(e.target.result);
-            req.onerror   = e => rej(e.target.error);
+            req.onerror = () => res(null);
         });
     }
 
-    function saveVideoDB(db, url, blob) {
-        return new Promise((res, rej) => {
+    async function saveVideoDB(db, url, blob) {
+        return new Promise((res) => {
             const tx = db.transaction('videos', 'readwrite');
             tx.objectStore('videos').put(blob, url);
             tx.oncomplete = res;
-            tx.onerror = e => rej(e.target.error);
         });
     }
 
-    // --- ЛОГИКА ПРИЛОЖЕНИЯ ---
+    // --- Загрузка видео в память ---
     async function downloadVideos() {
-        const db = await openDB();
-        let downloaded = 0;
-        let total = VIDEO_URLS.length;
+        try {
+            const db = await openDB();
+            let downloaded = 0;
 
-        for (const url of VIDEO_URLS) {
-            const existing = await getVideoDB(db, url).catch(() => undefined);
-            if (existing) {
-                downloaded++;
-                continue;
-            }
+            for (const url of VIDEO_URLS) {
+                const existing = await getVideoDB(db, url);
+                if (existing) {
+                    downloaded++;
+                    continue;
+                }
 
-            document.getElementById('downloadBar').style.display = 'block';
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
+                document.getElementById('downloadBar').style.display = 'block';
+                const resp = await fetch(url);
+                const blob = await resp.blob();
                 await saveVideoDB(db, url, blob);
                 downloaded++;
-                updateProgress(downloaded, total);
-            } catch (err) { console.error('Ошибка загрузки:', url); }
-        }
+                updateProgress(downloaded, VIDEO_URLS.length);
+            }
 
-        if (downloaded === total) {
-            document.getElementById('downloadLabel').textContent = 'Видео готовы ✓';
-            setTimeout(() => { document.getElementById('downloadBar').style.display = 'none'; }, 2000);
-        }
+            if (downloaded === VIDEO_URLS.length) {
+                document.getElementById('downloadLabel').textContent = 'Видео готовы ✓';
+                setTimeout(() => document.getElementById('downloadBar').style.display = 'none', 2000);
+            }
+        } catch (e) { console.error("Ошибка БД:", e); }
     }
 
     function updateProgress(done, total) {
@@ -275,22 +134,21 @@
         document.getElementById('downloadLabel').textContent = `Сохраняем видео… ${done}/${total}`;
     }
 
+    // --- Плеер ---
     async function playVideo(videoId) {
         const video = document.getElementById(videoId);
         const url = SRC_MAP[videoId];
 
         if (!video.dataset.blobLoaded) {
-            try {
-                const db = await openDB();
-                const blob = await getVideoDB(db, url);
-                if (blob) {
-                    video.src = URL.createObjectURL(blob);
-                    video.dataset.blobLoaded = '1';
-                } else {
-                    video.src = url; // Фолбэк на сеть
-                }
-            } catch (e) { video.src = url; }
-            video.load();
+            const db = await openDB();
+            const blob = await getVideoDB(db, url);
+            if (blob) {
+                video.src = URL.createObjectURL(blob);
+                video.dataset.blobLoaded = '1';
+                video.load();
+            } else {
+                video.src = url; // Если не скачалось, играем из сети
+            }
         }
 
         const start = () => {
@@ -298,14 +156,11 @@
             video.play();
         };
 
-        if (video.readyState >= 2) {
-            start();
-        } else {
-            video.addEventListener('loadeddata', start, { once: true });
-        }
+        if (video.readyState >= 2) start();
+        else video.addEventListener('loadeddata', start, { once: true });
     }
 
-    // --- НАВИГАЦИЯ ---
+    // --- Интерфейс ---
     function openClips() {
         document.getElementById('navTitle').innerText = 'Клипы';
         document.getElementById('mainScreen').classList.remove('screen-active');
@@ -327,7 +182,7 @@
         setTimeout(() => { window.location.href = 'about:blank'; }, 100);
     }
 
-    // Запуск скачивания при загрузке страницы
+    // Старт загрузки при запуске
     window.addEventListener('load', downloadVideos);
 </script>
 </body>
