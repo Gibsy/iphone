@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32cc3588-31c3-42e4-9674-f2bd3501c15b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/img/cadillac.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/img/dulo.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/img/ice.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/img/morgen.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/manifest.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,6 +67,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\gibsy\iphone\img" />
       <recent name="C:\Users\gibsy\iphone" />
       <recent name="C:\Users\gibsy\iphone\iphone" />
     </key>
@@ -80,7 +86,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1778597252283</updated>
-      <workItem from="1778597253316" duration="5019000" />
+      <workItem from="1778597253316" duration="5335000" />
     </task>
     <servers />
   </component>
