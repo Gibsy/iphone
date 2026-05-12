@@ -15,35 +15,29 @@
             --ios-list-btn-bg: linear-gradient(to bottom, #ffffff 0%, #eaeaea 100%);
             --ios-list-btn-border: #ababab;
             --ios-list-btn-text: #385487;
-            /* Цвет фона текстуры */
             --bg-gray: #4c535d;
         }
 
-        /* КРИТИЧЕСКИЙ МОМЕНТ: body должен быть цвета контента, а не шапки! */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--bg-gray); /* По умолчанию серый */
+            background-color: var(--bg-gray);
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow: hidden;
-            transition: background-color 0.3s ease; /* Плавная смена фона */
         }
 
         .app-viewport {
             width: 100%;
-            height: 100vh;
-            height: 100dvh; /* Динамическая высота для iOS */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
-            position: relative;
-            background-color: transparent; /* Вьюпорт теперь прозрачный */
+            background-color: transparent;
         }
 
-        /* NAVBAR */
         .navbar {
             padding-top: env(safe-area-inset-top, 20px);
             height: calc(44px + env(safe-area-inset-top, 20px));
@@ -54,7 +48,6 @@
             justify-content: center;
             position: relative;
             z-index: 100;
-            box-sizing: border-box;
             flex-shrink: 0;
         }
 
@@ -73,7 +66,7 @@
             padding: 0 12px;
             line-height: 29px;
             color: white;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             background: var(--ios-back-btn-bg);
             border: 1px solid var(--ios-back-btn-border);
@@ -83,31 +76,23 @@
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
-        /* ЭКРАНЫ */
         .screen {
-            flex: 1; /* Занимает всё свободное место */
+            flex: 1;
             width: 100%;
             display: none;
             flex-direction: column;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
-            padding-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        .screen-active {
-            display: flex;
-        }
+        .screen-active { display: flex; }
 
         .linen-bg {
             background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png');
             background-size: 256px;
         }
 
-        /* КОНТЕНТ */
-        .main-content {
-            padding: 20px;
-            text-align: center;
-        }
+        .main-content { padding: 20px; text-align: center; }
 
         .main-title {
             font-size: 24px;
@@ -117,71 +102,67 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
 
-        .main-subtitle {
-            font-size: 16px;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
+        .main-subtitle { color: #ccc; margin-bottom: 20px; }
 
         .main-image-container {
-            width: 220px;
-            height: 220px;
-            background: #fff;
-            padding: 5px;
+            width: 220px; height: 220px;
+            background: #fff; padding: 5px;
             border-radius: 4px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             margin: 0 auto 30px;
         }
 
-        .main-image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .main-image-container img { width: 100%; height: 100%; object-fit: cover; }
 
         .ios-list-btn {
-            display: block;
-            width: 90%;
-            max-width: 300px;
-            margin: 12px auto;
-            padding: 14px;
+            display: block; width: 90%; max-width: 300px;
+            margin: 12px auto; padding: 14px;
             background: var(--ios-list-btn-bg);
             border: 1px solid var(--ios-list-btn-border);
             border-radius: 10px;
-            font-size: 17px;
-            font-weight: bold;
+            font-size: 17px; font-weight: bold;
             color: var(--ios-list-btn-text);
-            text-align: center;
-            text-decoration: none;
+            text-align: center; text-decoration: none;
             text-shadow: 0 1px 0 white;
             box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
         }
 
+        /* ИСПРАВЛЕННЫЙ СПИСОК */
         .clip-list {
             list-style: none;
             padding: 0;
             margin: 0;
             background: #fff;
-            min-height: 100%;
+            /* Растягиваем белый фон до самого низа */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .clip-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 10px 15px;
             border-bottom: 1px solid #cbcbcb;
-            position: relative;
+            background: #fff;
         }
 
         .clip-thumb {
-            width: 45px;
-            height: 45px;
+            width: 44px; height: 44px;
             border-radius: 4px;
-            margin-right: 15px;
+            margin-right: 12px;
             object-fit: cover;
         }
 
-        .clip-title { font-size: 17px; font-weight: bold; color: #000; }
+        .clip-title { font-size: 17px; font-weight: bold; color: #000; flex: 1; }
+
+        /* Стрелочка как в iOS 6 */
+        .arrow {
+            width: 10px; height: 10px;
+            border-top: 3px solid #c7c7cc;
+            border-right: 3px solid #c7c7cc;
+            transform: rotate(45deg);
+        }
     </style>
 </head>
 <body>
@@ -205,20 +186,24 @@
         </div>
     </div>
 
-    <div class="screen" id="clipScreen" style="background: #fff;">
+    <div class="screen" id="clipScreen">
         <ul class="clip-list">
             <li class="clip-item">
                 <img src="img/ice.jpg" class="clip-thumb">
                 <span class="clip-title">ICE</span>
+                <div class="arrow"></div>
             </li>
             <li class="clip-item">
                 <img src="img/cadillac.jpg" class="clip-thumb">
                 <span class="clip-title">Cadillac</span>
+                <div class="arrow"></div>
             </li>
             <li class="clip-item">
                 <img src="img/dulo.jpg" class="clip-thumb">
                 <span class="clip-title">Дуло</span>
+                <div class="arrow"></div>
             </li>
+            <li style="flex: 1; background: #fff;"></li>
         </ul>
     </div>
 </div>
