@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="img/morgen.png">
     <link rel="apple-touch-icon" sizes="180x180" href="img/morgen.png">
     <link rel="apple-touch-icon" sizes="167x167" href="img/morgen.png">
-    
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>MORGENSTERN</title>
@@ -186,8 +186,8 @@
                 <img src="img/morgen.jpg" alt="Morgenshtern">
             </div>
             <a href="#" class="ios-list-btn" onclick="openClips()">Смотреть MORGENSHTERN</a>
-            <a href="#" class="ios-list-btn">Авторы</a>
-            <a href="#" class="ios-list-btn">Выход</a>
+            <a href="https://github.com/Gibsy" target="_blank" class="ios-list-btn">Авторы</a>
+            <a href="#" class="ios-list-btn" onclick="exitApp()">Выход</a>
         </div>
     </div>
 
@@ -234,6 +234,13 @@
     document.addEventListener('touchmove', (e) => {
         if (!e.target.closest('.screen')) e.preventDefault();
     }, { passive: false });
+
+    function exitApp() {
+        window.close();
+        setTimeout(function() {
+            window.location.href = "about:blank";
+        }, 100);
+    }
 </script>
 </body>
 </html>
