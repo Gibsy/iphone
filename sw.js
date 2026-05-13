@@ -1,4 +1,4 @@
-const CACHE_NAME = 'morgen-v2';
+const CACHE_NAME = 'morgen-v5';
 
 // ВАЖНО: Убедись, что эти пути ТОЧНО совпадают с твоей структурой папок
 const ASSETS = [
