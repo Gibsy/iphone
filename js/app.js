@@ -8,27 +8,20 @@ const TRACKS = [
 
 function playVideo(url) {
     const v = $('videoPlayer');
-
-    // Сбрасываем текущее состояние
-    v.pause();
     v.src = url;
-    v.load();
+    v.style.display = 'block'; // Временно показываем, чтобы Safari "увидел" видео
 
-    // Магия для iOS: ждем готовности метаданных и кидаем в фуллскрин
-    const startFullscreen = () => {
+    // Сначала запускаем видео
+    v.play().then(() => {
+        // И СРАЗУ (без ожиданий событий) просим фуллскрин
         if (v.webkitEnterFullscreen) {
             v.webkitEnterFullscreen();
         } else if (v.requestFullscreen) {
             v.requestFullscreen();
         }
-        v.play();
-        v.removeEventListener('loadedmetadata', startFullscreen);
-    };
-
-    v.addEventListener('loadedmetadata', startFullscreen);
-
-    // Попытка запустить сразу для скорости
-    v.play().catch(err => console.log("Ждем загрузки..."));
+    }).catch(err => {
+        console.log("Ошибка запуска:", err);
+    });
 }
 
 function renderList() {
