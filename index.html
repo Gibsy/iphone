@@ -1,232 +1,31 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <link rel="apple-touch-icon" href="img/morgen.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="css/app.css">
     <title>MORGENSTERN</title>
 </head>
-<style>
-    :root {
-        --ios-nav-bg: linear-gradient(to bottom, #7e9bbc 0%, #56789f 50%, #466993 50%, #3b5a81 100%);
-        --ios-back-btn-bg: linear-gradient(to bottom, #6d88ab 0%, #405f87 100%);
-        --ios-back-btn-border: #314a6b;
-        --ios-list-btn-bg: linear-gradient(to bottom, #ffffff 0%, #eaeaea 100%);
-        --ios-list-btn-border: #ababab;
-        --ios-list-btn-text: #385487;
-        --bg-gray: #4c535d;
-    }
 
-    body, html {
-        margin: 0; padding: 0;
-        width: 100%; height: 100%;
-        background-color: var(--bg-gray);
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        user-select: none; -webkit-user-select: none;
-        overflow: hidden;
-    }
-
-    .app-viewport { width: 100%; height: 100dvh; display: flex; flex-direction: column; }
-
-    /* Навбар */
-    .navbar {
-        padding-top: env(safe-area-inset-top, 20px);
-        height: calc(32px + env(safe-area-inset-top, 20px));
-        background: var(--ios-nav-bg);
-        border-bottom: 1px solid #2d3033;
-        display: flex; align-items: center; justify-content: center;
-        position: relative; z-index: 100; flex-shrink: 0;
-    }
-    .nav-title { color: white; font-size: 19px; font-weight: bold; text-shadow: 0 -1px 0 rgba(0,0,0,0.6); }
-    .back-button {
-        position: absolute; left: 8px; top: calc(env(safe-area-inset-top, 20px) + 6px);
-        height: 30px; padding: 0 12px; line-height: 30px;
-        color: white; font-size: 13px; font-weight: bold;
-        background: var(--ios-back-btn-bg); border: 1px solid var(--ios-back-btn-border);
-        border-radius: 5px; display: none; text-shadow: 0 -1px 0 rgba(0,0,0,0.6);
-    }
-
-    /* Экраны */
-    .screen { flex: 1; width: 100%; display: none; flex-direction: column; overflow-y: auto; }
-    .screen-active { display: flex; }
-    .linen-bg { background-image: url('https://www.transparenttextures.com/patterns/dark-linen.png'); background-size: 256px; }
-
-    /* Твое меню */
-    .main-content { padding: 20px; text-align: center; }
-    .main-title { font-size: 26px; font-weight: bold; color: #fff; margin: 10px 0 5px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
-    .main-subtitle { color: #ccc; margin-bottom: 25px; font-size: 14px; }
-    .main-image-container { width: 220px; height: 220px; background: #fff; padding: 5px; border-radius: 4px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); margin: 0 auto 30px; }
-    .main-image-container img { width: 100%; height: 100%; object-fit: cover; }
-
-    .ios-list-btn {
-        display: block; width: 85%; max-width: 300px; margin: 12px auto; padding: 14px;
-        background: var(--ios-list-btn-bg); border: 1px solid var(--ios-list-btn-border);
-        border-radius: 10px; font-size: 17px; font-weight: bold; color: var(--ios-list-btn-text);
-        text-align: center; text-decoration: none; text-shadow: 0 1px 0 white;
-        box-shadow: inset 0 1px 0 #fff, 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    /* Прогресс бар */
-    #downloadBar { display: none; margin: 20px auto 0; width: 85%; max-width: 300px; font-size: 13px; color: #ccc; text-align: center; }
-    #downloadFill { height: 8px; width: 0%; background: linear-gradient(to bottom, #b4e391 0%,#61c419 50%,#52ab12 100%); border-radius: 10px; transition: width 0.3s; }
-
-    /* Список песен */
-    .clip-list { list-style: none; padding: 0; margin: 0; background: #fff; flex: 1; }
-    .clip-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #cbcbcb; background: #fff; }
-    .clip-thumb { width: 50px; height: 50px; border-radius: 6px; margin-right: 15px; object-fit: cover; }
-    .clip-title { font-size: 18px; font-weight: bold; color: #000; flex: 1; }
-
-    /* ПЛЕЕР (стиль iOS 6) */
-    .player-screen { background: #000; color: #fff; text-align: center; }
-    .p-album-art { width: 280px; height: 280px; margin: 20px auto; border-radius: 10px; box-shadow: 0 0 20px #000; overflow: hidden; background: #222; }
-    .p-album-art img { width: 100%; height: 100%; object-fit: cover; }
-    .p-controls {
-        position: fixed; bottom: 0; width: 100%; padding: 20px 0 40px;
-        background: linear-gradient(to bottom, #454545 0%, #000 100%);
-        border-top: 1px solid #555;
-    }
-    input[type=range] { width: 80%; height: 6px; appearance: none; background: #333; border-radius: 10px; outline: none; margin-bottom: 20px; }
-    input[type=range]::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; background: #fff; border-radius: 50%; }
-    .p-btns { display: flex; justify-content: center; gap: 30px; align-items: center; }
-    .play-btn { width: 60px; height: 60px; border-radius: 50%; background: #eee; border: none; font-size: 24px; color: #000; font-weight: bold; }
-</style>
 <body>
 
-<div class="app-viewport">
-    <div class="navbar">
-        <div class="back-button" id="backBtn" onclick="goBack()">Назад</div>
-        <div class="nav-title" id="navTitle">MORGENSHTERN</div>
-    </div>
+<div class="container">
+    <img src="img/morgen.png" alt="Morgen" class="profile-img" id="mainPhoto">
 
-    <div class="screen screen-active linen-bg" id="mainScreen">
-        <div class="main-content">
-            <h1 class="main-title">MORGENSHTERN</h1>
-            <p class="main-subtitle">Слушать без интернета</p>
-            <div class="main-image-container">
-                <img src="img/morgen.jpg" alt="Morgenshtern">
-            </div>
-            <a href="#" class="ios-list-btn" onclick="openScreen('clipScreen')">Смотреть MORGENSHTERN</a>
-            <a href="https://github.com/Gibsy" target="_blank" class="ios-list-btn">Авторы</a>
-            <a href="#" class="ios-list-btn" onclick="exitApp()">Выход</a>
+    <h1>MORGENSTERN</h1>
 
-            <div id="downloadBar">
-                <span id="downloadLabel">Сохраняем треки для офлайн…</span>
-                <div style="background: rgba(0,0,0,0.3); border-radius:10px; overflow:hidden; margin-top:6px; box-shadow: inset 0 1px 3px #000;">
-                    <div id="downloadFill"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="screen" id="clipScreen">
-        <ul class="clip-list">
-            <li class="clip-item" onclick="playSong('ice')">
-                <img src="img/ice.jpg" class="clip-thumb">
-                <span class="clip-title">ICE</span>
-            </li>
-            <li class="clip-item" onclick="playSong('cadillac')">
-                <img src="img/cadillac.jpg" class="clip-thumb">
-                <span class="clip-title">Cadillac</span>
-            </li>
-            <li class="clip-item" onclick="playSong('dulo')">
-                <img src="img/dulo.jpg" class="clip-thumb">
-                <span class="clip-title">Дуло</span>
-            </li>
-        </ul>
-    </div>
-
-    <div class="screen player-screen" id="playerScreen">
-        <div class="p-album-art"><img id="p-img" src=""></div>
-        <h2 id="p-title" style="margin: 0;">Название</h2>
-        <p style="color: #888;">MORGENSHTERN</p>
-
-        <div class="p-controls">
-            <input type="range" id="p-progress" value="0" step="1">
-            <div class="p-btns">
-                <button class="play-btn" id="playBtn" onclick="togglePlay()">></button>
-            </div>
-        </div>
+    <div class="btn-group">
+        <button onclick="changeColor()">Цвет фона</button>
+        <button onclick="sayHi()">Привет!</button>
+        <button onclick="shakePhoto()">Эффект</button>
     </div>
 </div>
 
-<audio id="audioEngine"></audio>
-
-<script>
-    const DATA = {
-        'ice': { t: 'ICE', f: 'music/ice.mp3', i: 'img/ice.jpg' },
-        'cadillac': { t: 'Cadillac', f: 'music/cadillac.mp3', i: 'img/cadillac.jpg' },
-        'dulo': { t: 'Дуло', f: 'music/dulo.mp3', i: 'img/dulo.jpg' }
-    };
-
-    const audio = document.getElementById('audioEngine');
-    const prog = document.getElementById('p-progress');
-    let db;
-
-    // Инициализация БД и загрузка
-    const req = indexedDB.open('MusicDB', 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore('songs');
-    req.onsuccess = e => { db = e.target.result; startDownload(); };
-
-    async function startDownload() {
-        const keys = Object.keys(DATA);
-        let count = 0;
-        for (let id of keys) {
-            const tx = db.transaction('songs', 'readonly');
-            const exist = await new Promise(r => tx.objectStore('songs').get(id).onsuccess = e => r(e.target.result));
-            if (!exist) {
-                document.getElementById('downloadBar').style.display = 'block';
-                const res = await fetch(DATA[id].f);
-                const blob = await res.blob();
-                const txW = db.transaction('songs', 'readwrite');
-                txW.objectStore('songs').put(blob, id);
-            }
-            count++;
-            document.getElementById('downloadFill').style.width = (count/keys.length*100) + '%';
-        }
-        setTimeout(() => document.getElementById('downloadBar').style.display = 'none', 2000);
-    }
-
-    function openScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('screen-active'));
-        document.getElementById(id).classList.add('screen-active');
-        document.getElementById('backBtn').style.display = (id === 'mainScreen') ? 'none' : 'block';
-        if (id === 'playerScreen') document.getElementById('navTitle').innerText = 'Плеер';
-        else if (id === 'clipScreen') document.getElementById('navTitle').innerText = 'Треки';
-        else document.getElementById('navTitle').innerText = 'MORGENSHTERN';
-    }
-
-    function goBack() {
-        const active = document.querySelector('.screen-active').id;
-        if (active === 'playerScreen') openScreen('clipScreen');
-        else openScreen('mainScreen');
-    }
-
-    async function playSong(id) {
-        const song = DATA[id];
-        document.getElementById('p-img').src = song.i;
-        document.getElementById('p-title').innerText = song.t;
-
-        const tx = db.transaction('songs', 'readonly');
-        const blob = await new Promise(r => tx.objectStore('songs').get(id).onsuccess = e => r(e.target.result));
-
-        if (audio.src) URL.revokeObjectURL(audio.src);
-        audio.src = URL.createObjectURL(blob);
-        openScreen('playerScreen');
-        audio.play();
-        document.getElementById('playBtn').innerText = '||';
-    }
-
-    function togglePlay() {
-        if (audio.paused) { audio.play(); document.getElementById('playBtn').innerText = '||'; }
-        else { audio.pause(); document.getElementById('playBtn').innerText = '>'; }
-    }
-
-    audio.ontimeupdate = () => { prog.max = audio.duration; prog.value = audio.currentTime; };
-    prog.oninput = () => audio.currentTime = prog.value;
-
-    function exitApp() { window.close(); setTimeout(() => { window.location.href = 'about:blank'; }, 100); }
-</script>
 </body>
+
+<script src="js/app.js"></script>
 </html>
