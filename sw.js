@@ -2,16 +2,16 @@ const CACHE_NAME = 'morgen-v1';
 // ПЕРЕЧИСЛИ ТУТ ВСЕ СВОИ ФАЙЛЫ
 const ASSETS = [
     '/',
-    '/index.html',
-    '/css/app.css',
-    '/js/app.js',
-    '/img/morgen.jpg',
-    '/img/ice.jpg',
-    '/img/cadillac.jpg',
-    '/img/dulo.jpg',
-    '/video/ice.mp4',
-    '/video/cadillac.mp4',
-    '/video/dulo.mp4'
+    'index.html',
+    'css/app.css',
+    'js/app.js',
+    'img/morgen.jpg',
+    'img/ice.jpg',
+    'img/cadillac.jpg',
+    'img/dulo.jpg',
+    'video/ice.mp4',
+    'video/cadillac.mp4',
+    'audio/dulo.mp4'
 ];
 
 self.addEventListener('install', (e) => {
