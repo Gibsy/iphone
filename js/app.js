@@ -6,28 +6,88 @@ const TRACKS = [
     { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg', video:'video/dulo.mp4' }
 ];
 
-// app.js
-async function playVideo(url) {
-    const v = document.getElementById('videoPlayer');
+// ── Модальный плеер ──────────────────────────────────────────────────────────
+function createModal() {
+    if ($('videoModal')) return;
 
-    v.pause();
-    v.src = url;
-    v.load(); // Важно для Safari
+    const modal = document.createElement('div');
+    modal.id = 'videoModal';
+    modal.style.cssText = `
+        display:none; position:fixed; inset:0; z-index:9999;
+        background:#000; align-items:center; justify-content:center;
+        flex-direction:column;
+    `;
+
+    // Кнопка закрытия
+    const closeBtn = document.createElement('button');
+    closeBtn.innerText = '✕';
+    closeBtn.style.cssText = `
+        position:absolute; top:16px; right:20px;
+        background:rgba(255,255,255,0.15); border:none; color:#fff;
+        font-size:22px; width:44px; height:44px; border-radius:50%;
+        cursor:pointer; z-index:10000; display:flex;
+        align-items:center; justify-content:center;
+    `;
+    closeBtn.onclick = closeModal;
+
+    // Видео-элемент — ВИДИМЫЙ, полноразмерный внутри модала
+    const video = document.createElement('video');
+    video.id = 'videoPlayer';
+    video.controls = true;
+    video.playsinline = true;                 // iOS: не уходить в системный плеер
+    video.setAttribute('playsinline', '');    // дублируем атрибут для старых Safari
+    video.setAttribute('webkit-playsinline', '');
+    video.preload = 'metadata';
+    video.style.cssText = `
+        width:100%; height:100%; max-height:100dvh;
+        object-fit:contain; background:#000;
+    `;
+
+    modal.appendChild(closeBtn);
+    modal.appendChild(video);
+    document.body.appendChild(modal);
+
+    // Закрыть по клику на фон (не на само видео)
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Закрыть по Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+}
+
+function openModal() {
+    const modal = $('videoModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = $('videoModal');
+    const video = $('videoPlayer');
+    if (video) { video.pause(); video.src = ''; }
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+async function playVideo(url) {
+    createModal();
+    openModal();
+
+    const video = $('videoPlayer');
+    video.src = url;
+    video.load();
 
     try {
-        // Попытка воспроизведения должна идти ПЕРЕД фуллскрином
-        await v.play();
-
-        if (v.webkitEnterFullscreen) {
-            v.webkitEnterFullscreen();
-        } else if (v.requestFullscreen) {
-            v.requestFullscreen();
-        }
+        await video.play();
     } catch (err) {
-        console.error("Ошибка запуска видео:", err);
-        // Если заблокировано, можно вывести сообщение "Нажмите еще раз"
+        // iOS может потребовать жест пользователя — controls уже видны, юзер нажмёт сам
+        console.warn('Autoplay blocked, user can tap play:', err);
     }
 }
+// ────────────────────────────────────────────────────────────────────────────
 
 function renderList() {
     $('trackList').innerHTML = TRACKS.map(t => `
@@ -52,7 +112,6 @@ function openTracks() {
 }
 
 function openAuthors() {
-    renderList();
     $('navTitle').innerText = 'Авторы';
     $('mainScreen').classList.remove('active');
     $('trackScreen').classList.remove('active');
@@ -73,7 +132,7 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js') // точка важна
+    navigator.serviceWorker.register('./sw.js')
         .then(() => console.log("SW загружен"))
         .catch(err => console.log("Ошибка SW:", err));
 }
