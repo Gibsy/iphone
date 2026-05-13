@@ -1,18 +1,39 @@
-function changeColor() {
-    const colors = ['#1a1a1a', '#444', '#000', '#2c2c2c'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    document.body.style.backgroundColor = randomColor;
+const $ = id => document.getElementById(id);
+
+const TRACKS = [
+    { title:'ICE', artist:'MORGENSHTERN', img:'img/ice.jpg' },
+    { title:'Cadillac', artist:'MORGENSHTERN', img:'img/cadillac.jpg' },
+    { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg' }
+];
+
+function renderList() {
+    $('trackList').innerHTML = TRACKS.map(t => `
+            <li class="track-item">
+                <img class="track-thumb" src="${t.img}">
+                <div class="track-info">
+                    <div class="track-name">${t.title}</div>
+                    <div class="track-artist">${t.artist}</div>
+                </div>
+                <div class="chevron"></div>
+            </li>
+        `).join('');
 }
 
-// Простой алерт
-function sayHi() {
-    alert('Шоу начинается!');
+function openTracks() {
+    renderList();
+    $('navTitle').innerText = 'Треки';
+    $('mainScreen').classList.remove('active');
+    $('trackScreen').classList.add('active');
+    $('backBtn').style.display = 'block';
 }
 
-function shakePhoto() {
-    const img = document.getElementById('mainPhoto');
-    img.style.transform = 'scale(1.2) rotate(5deg)';
-    setTimeout(() => {
-        img.style.transform = 'scale(1)';
-    }, 300);
+function goBack() {
+    $('trackScreen').classList.remove('active');
+    $('mainScreen').classList.add('active');
+    $('navTitle').innerText = 'MORGENSHTERN';
+    $('backBtn').style.display = 'none';
 }
+
+document.addEventListener('touchmove', e => {
+    if (!e.target.closest('.screen')) e.preventDefault();
+}, { passive: false });
