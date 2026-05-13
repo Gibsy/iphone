@@ -526,17 +526,20 @@
 
     // Прогресс
     audio.addEventListener('timeupdate', () => {
-        if (!audio.duration) return;
-        const pct = audio.currentTime / audio.duration * 100;
-        document.getElementById('seekFill').style.width = pct + '%';
-        document.getElementById('timeNow').textContent   = fmt(audio.currentTime);
-        document.getElementById('timeTotal').textContent = fmt(audio.duration);
+        const dur = parseFloat(audio.duration);
+        const cur = parseFloat(audio.currentTime);
+        if (!dur || !isFinite(dur)) return;
+        document.getElementById('seekFill').style.width = (cur / dur * 100) + '%';
+        document.getElementById('timeNow').textContent   = fmt(cur);
+        document.getElementById('timeTotal').textContent = fmt(dur);
     });
 
     function fmt(s) {
-        if (!s || !isFinite(s)) return '0:00';
-        const m = Math.floor(s / 60), sec = Math.floor(s % 60);
-        return `${m}:${sec.toString().padStart(2,'0')}`;
+        s = Math.floor(s);
+        if (!s || !isFinite(s) || s < 0) return '0:00';
+        const m   = Math.floor(s / 60);
+        const sec = s % 60;
+        return m + ':' + (sec < 10 ? '0' : '') + sec;
     }
 
     // Перемотка
