@@ -48,6 +48,7 @@
             border: 1px solid #314a6b; border-radius: 5px; display: none;
             text-shadow: 0 -1px 0 rgba(0,0,0,.6);
             box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(0,0,0,.4);
+            clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 10px 100%, 0% 50%);
             transition: filter .1s;
         }
         .back-btn:active { filter: brightness(.8); }
@@ -290,7 +291,7 @@
 <body>
 <div class="app">
     <div class="navbar">
-        <div class="back-btn" id="backBtn" onclick="goBack()"> Назад</div>
+        <div class="back-btn" id="backBtn" onclick="goBack()">◀ Назад</div>
         <div class="nav-title" id="navTitle">MORGENSHTERN</div>
     </div>
 
@@ -304,17 +305,17 @@
             <div class="main-sub">Музыка без интернета</div>
 
             <a href="#" class="main-btn" onclick="openTracks()">
-                <span class="btn-icon"></span>
+                <span class="btn-icon">🎵</span>
                 <span>Слушать треки</span>
-                <span class="btn-arrow"></span>
+                <span class="btn-arrow">›</span>
             </a>
             <a href="https://github.com/Gibsy" target="_blank" class="main-btn">
-                <span class="btn-icon"></span>
+                <span class="btn-icon">👤</span>
                 <span>Авторы</span>
-                <span class="btn-arrow"></span>
+                <span class="btn-arrow">›</span>
             </a>
             <a href="#" class="main-btn" onclick="exitApp()">
-                <span class="btn-icon"></span>
+                <span class="btn-icon">✕</span>
                 <span>Выход</span>
                 <span class="btn-arrow"></span>
             </a>
@@ -471,19 +472,16 @@
         curIdx = idx;
         const t = TRACKS[idx];
 
-        // Blob из IndexedDB → ObjectURL
-        try {
-            const db   = await openDB();
-            const blob = await dbGet(db, t.src);
-            if (blob) audio.src = URL.createObjectURL(blob);
-            else      audio.src = t.src;
-        } catch(e) { audio.src = t.src; }
-
-        // Обновить UI плеера
+        // UI сразу
         document.getElementById('playerTitle').textContent  = t.title;
         document.getElementById('playerArtist').textContent = t.artist;
         document.getElementById('discArt').src = t.img;
+        openPlayer();
 
+        // iOS: play() ДОЛЖЕН быть синхронно после тапа, без await перед ним
+        // Сначала играем из файла напрямую
+        audio.pause();
+        audio.src = t.src;
         audio.load();
         audio.play().then(() => {
             isPlaying = true;
@@ -492,20 +490,33 @@
             updateListHighlight();
         }).catch(e => console.warn(e));
 
-        openPlayer();
+        // Фоново: если трек есть в IndexedDB и ещё не начал играть — подменяем на blob
+        try {
+            const db   = await openDB();
+            const blob = await dbGet(db, t.src);
+            if (blob && audio.paused) {
+                audio.src = URL.createObjectURL(blob);
+                audio.load();
+                audio.play().catch(e => console.warn(e));
+            }
+        } catch(e) {}
     }
 
     function togglePlay() {
         if (audio.paused) {
-            audio.play(); isPlaying = true;
-            setPlayIcon(true);
-            document.getElementById('disc').classList.add('spinning');
+            audio.play().then(() => {
+                isPlaying = true;
+                setPlayIcon(true);
+                document.getElementById('disc').classList.add('spinning');
+                updateListHighlight();
+            }).catch(e => console.warn(e));
         } else {
-            audio.pause(); isPlaying = false;
+            audio.pause();
+            isPlaying = false;
             setPlayIcon(false);
             document.getElementById('disc').classList.remove('spinning');
+            updateListHighlight();
         }
-        updateListHighlight();
     }
 
     function prevTrack() { loadAndPlay((curIdx - 1 + TRACKS.length) % TRACKS.length); }
