@@ -73,3 +73,11 @@ function goBack() {
 document.addEventListener('touchmove', e => {
     if (!e.target.closest('.screen')) e.preventDefault();
 }, { passive: false });
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker зарегистрирован!'))
+            .catch(err => console.log('Ошибка SW:', err));
+    });
+}

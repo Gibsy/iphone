@@ -1,65 +1,39 @@
-const CACHE = 'morgenshtern-v3';
-
-const FILES = [
-  '/',
-  '/index.html',
-
-  '/img/morgen.jpg',
-  '/img/morgen.png',
-
-  '/img/ice.jpg',
-  '/img/cadillac.jpg',
-  '/img/dulo.jpg',
-
-  '/audio/ice.mp3',
-  '/audio/cadillac.mp3',
-  '/audio/dulo.mp3'
+const CACHE_NAME = 'morgen-v1';
+// ПЕРЕЧИСЛИ ТУТ ВСЕ СВОИ ФАЙЛЫ
+const ASSETS = [
+    '/',
+    '/index.html',
+    '/css/app.css',
+    '/js/app.js',
+    '/img/morgen.jpg',
+    '/img/ice.jpg',
+    '/img/cadillac.jpg',
+    '/img/dulo.jpg',
+    '/video/ice.mp4',
+    '/video/cadillac.mp4',
+    '/video/dulo.mp4'
 ];
 
-self.addEventListener('install', e => {
-  e.waitUntil(
-      caches.open(CACHE)
-          .then(cache => cache.addAll(FILES))
-          .then(() => self.skipWaiting())
-  );
+self.addEventListener('install', (e) => {
+    e.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    );
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-      caches.keys().then(keys =>
-          Promise.all(
-              keys
-                  .filter(key => key !== CACHE)
-                  .map(key => caches.delete(key))
-          )
-      ).then(() => self.clients.claim())
-  );
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keys) => {
+            return Promise.all(
+                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+            );
+        })
+    );
 });
 
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-
-  e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-
-        return fetch(e.request)
-            .then(res => {
-              const clone = res.clone();
-
-              if (e.request.url.startsWith(self.location.origin)) {
-                caches.open(CACHE).then(cache => {
-                  cache.put(e.request, clone);
-                });
-              }
-
-              return res;
-            })
-            .catch(() => {
-              if (e.request.destination === 'document') {
-                return caches.match('/index.html');
-              }
-            });
-      })
-  );
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        caches.match(e.request).then((res) => {
+            return res || fetch(e.request);
+        })
+    );
 });
