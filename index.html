@@ -24,7 +24,7 @@
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body, html {
             width: 100%; height: 100%;
-            background: var(--bg);
+            background: #1c1f24;
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none; -webkit-tap-highlight-color: transparent;
             overflow: hidden; overscroll-behavior: none;
@@ -290,7 +290,7 @@
 <body>
 <div class="app">
     <div class="navbar">
-        <div class="back-btn" id="backBtn" onclick="goBack()">Назад</div>
+        <div class="back-btn" id="backBtn" onclick="goBack()"> Назад</div>
         <div class="nav-title" id="navTitle">MORGENSHTERN</div>
     </div>
 
@@ -306,12 +306,12 @@
             <a href="#" class="main-btn" onclick="openTracks()">
                 <span class="btn-icon"></span>
                 <span>Слушать треки</span>
-                <span class="btn-arrow">›</span>
+                <span class="btn-arrow"></span>
             </a>
             <a href="https://github.com/Gibsy" target="_blank" class="main-btn">
                 <span class="btn-icon"></span>
                 <span>Авторы</span>
-                <span class="btn-arrow">›</span>
+                <span class="btn-arrow"></span>
             </a>
             <a href="#" class="main-btn" onclick="exitApp()">
                 <span class="btn-icon"></span>
@@ -570,6 +570,7 @@
         $('navTitle').innerText = TRACKS[curIdx].title;
         $('trackScreen').classList.remove('active');
         $('playerScreen').classList.add('active');
+        document.body.style.background = '#0e1014';
         $('backBtn').style.display = 'block';
     }
 
@@ -578,12 +579,13 @@
             $('playerScreen').classList.remove('active');
             $('trackScreen').classList.add('active');
             $('navTitle').innerText = 'Треки';
+            document.body.style.background = '#1c1f24';
             updateListHighlight();
         } else {
             $('trackScreen').classList.remove('active');
             $('mainScreen').classList.add('active');
             $('navTitle').innerText = 'MORGENSHTERN';
-            document.body.style.background = 'var(--bg)';
+            document.body.style.background = '#2a2f38';
             $('backBtn').style.display = 'none';
         }
     }
