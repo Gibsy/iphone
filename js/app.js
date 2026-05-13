@@ -1,7 +1,7 @@
 const $ = id => document.getElementById(id);
 
 const TRACKS = [
-    { title:'ICE', artist:'MORGENSHTERN', img:'img/ice.jpg', video:'audio/ice.mp4' },
+    { title:'ICE', artist:'MORGENSHTERN', img:'img/ice.jpg', video:'video/ice.mp4' },
     { title:'Cadillac', artist:'MORGENSHTERN', img:'img/cadillac.jpg', video:'video/cadillac.mp4' },
     { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg', video:'video/dulo.mp4' }
 ];
