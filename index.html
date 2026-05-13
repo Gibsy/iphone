@@ -42,6 +42,10 @@
         }
         .back-btn:active { filter: brightness(.8); }
 
+        button, .track-item, .main-btn {
+            touch-action: manipulation;
+        }
+
         .screen { flex: 1; width: 100%; display: none; flex-direction: column; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .screen.active { display: flex; }
 
@@ -210,6 +214,13 @@
 <audio id="audio" playsinline preload="metadata"></audio>
 
 <script>
+
+    document.addEventListener('touchstart', function() {
+        if (audio.src === "") { // Только если еще ничего не загружено
+            audio.play().then(() => audio.pause());
+        }
+    }, { once: true });
+
     const TRACKS = [
         { title:'ICE', artist:'MORGENSHTERN', src:'https://gibsy.site/iphone/audio/ice.mp3', img:'img/ice.jpg' },
         { title:'Cadillac', artist:'MORGENSHTERN', src:'/audio/cadillac.mp3', img:'img/cadillac.jpg' },
@@ -289,35 +300,28 @@
     }
 
     // PLAY / PAUSE
-    function togglePlay() {
+    function loadAndPlay(i) {
+        cur = i;
+        const t = TRACKS[i];
 
-        if (audio.paused) {
+        // 1. Сразу меняем источник и запускаем (самый высокий приоритет)
+        audio.src = t.src;
+        audio.load();
+        const playPromise = audio.play();
 
-            const p = audio.play();
+        // 2. Пока он начинает играть, меняем интерфейс (это может занять время на старом CPU)
+        $('playerTitle').textContent = t.title;
+        $('playerArtist').textContent = t.artist;
+        $('discArt').src = t.img;
+        openPlayer();
 
-            if (p !== undefined) {
-                p.then(() => {
-                    playing = true;
-
-                    setIcon(true);
-
-                    $('disc').classList.add('spinning');
-
-                    highlight();
-                }).catch(console.error);
-            }
-
-        } else {
-
-            audio.pause();
-
-            playing = false;
-
-            setIcon(false);
-
-            $('disc').classList.remove('spinning');
-
-            highlight();
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                playing = true;
+                setIcon(true);
+                $('disc').classList.add('spinning');
+                highlight();
+            }).catch(err => alert(err));
         }
     }
 
