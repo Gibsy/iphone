@@ -6,22 +6,27 @@ const TRACKS = [
     { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg', video:'video/dulo.mp4' }
 ];
 
-function playVideo(url) {
-    const v = $('videoPlayer');
-    v.src = url;
-    v.style.display = 'block'; // Временно показываем, чтобы Safari "увидел" видео
+// app.js
+async function playVideo(url) {
+    const v = document.getElementById('videoPlayer');
 
-    // Сначала запускаем видео
-    v.play().then(() => {
-        // И СРАЗУ (без ожиданий событий) просим фуллскрин
+    v.pause();
+    v.src = url;
+    v.load(); // Важно для Safari
+
+    try {
+        // Попытка воспроизведения должна идти ПЕРЕД фуллскрином
+        await v.play();
+
         if (v.webkitEnterFullscreen) {
             v.webkitEnterFullscreen();
         } else if (v.requestFullscreen) {
             v.requestFullscreen();
         }
-    }).catch(err => {
-        console.log("Ошибка запуска:", err);
-    });
+    } catch (err) {
+        console.error("Ошибка запуска видео:", err);
+        // Если заблокировано, можно вывести сообщение "Нажмите еще раз"
+    }
 }
 
 function renderList() {
