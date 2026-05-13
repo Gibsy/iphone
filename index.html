@@ -227,69 +227,71 @@
     let cur = 0;
     let playing = false;
 
-    // 1. Фикс для iOS: разблокировка аудио по первому тапу
+    // 1. Фикс для iOS: Разблокировка аудио по первому тапу
     document.addEventListener('touchstart', function() {
         if (!audio.src || audio.src === "") {
             audio.src = TRACKS[0].src;
             audio.load();
-            audio.play().then(() => audio.pause());
+            audio.play().then(() => audio.pause()).catch(() => {});
         }
     }, { once: true });
 
-    // 2. Единая функция загрузки и воспроизведения
+    // 2. Универсальная функция загрузки и игры
     function loadAndPlay(i) {
         cur = i;
         const t = TRACKS[i];
 
-        // Приоритет 1: Запуск звука
+        // Сначала ставим источник, чтобы Safari начал буферизацию
         audio.src = t.src;
         audio.load();
 
         const playPromise = audio.play();
 
-        // Приоритет 2: Обновление интерфейса
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                playing = true;
-                updateUI(t);
-            }).catch(err => {
-                console.log("Playback error:", err);
-                // Если автоплей заблокирован, всё равно открываем плеер
-                updateUI(t);
-            });
-        }
-    }
-
-    function updateUI(t) {
+        // Сразу меняем текст и картинки, не дожидаясь ответа от аудио
         $('playerTitle').textContent = t.title;
         $('playerArtist').textContent = t.artist;
         $('discArt').src = t.img;
         $('navTitle').innerText = t.title;
-        setIcon(true);
-        $('disc').classList.add('spinning');
+
         openPlayer();
-        highlight();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                playing = true;
+                setIcon(true);
+                $('disc').classList.add('spinning');
+                highlight();
+            }).catch(err => {
+                console.log("Playback blocked or failed:", err);
+                playing = false;
+                setIcon(false);
+            });
+        }
     }
 
-    // 3. Исправленная функция Паузы/Плея
+    // 3. Исправленная кнопка Паузы/Плея
     function togglePlay() {
+        if (audio.src === "") return; // Если ничего не выбрано
+
         if (audio.paused) {
-            audio.play();
-            playing = true;
-            setIcon(true);
-            $('disc').classList.add('spinning');
+            audio.play().then(() => {
+                playing = true;
+                setIcon(true);
+                $('disc').classList.add('spinning');
+                highlight();
+            });
         } else {
             audio.pause();
             playing = false;
             setIcon(false);
             $('disc').classList.remove('spinning');
+            highlight();
         }
-        highlight();
     }
 
-    // 4. Корректный таймлайн
+    // 4. Рабочий таймлайн (без NaN и прыжков)
     audio.addEventListener('timeupdate', () => {
-        if (isNaN(audio.duration)) return;
+        if (isNaN(audio.duration) || !isFinite(audio.duration)) return;
 
         const percent = (audio.currentTime / audio.duration) * 100;
         $('seekFill').style.width = percent + '%';
@@ -299,102 +301,107 @@
     });
 
     function formatTime(s) {
-        if (isNaN(s)) return "0:00";
+        if (isNaN(s) || s < 0) return "0:00";
         let m = Math.floor(s / 60);
         let sec = Math.floor(s % 60);
         return m + ":" + (sec < 10 ? '0' : '') + sec;
     }
 
-    // 5. Навигация и прочее
-    function nextTrack() { loadAndPlay((cur + 1) % TRACKS.length); }
-    function prevTrack() { loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length); }
+    // 5. Навигация
+    function nextTrack() {
+        loadAndPlay((cur + 1) % TRACKS.length);
+    }
+
+    function prevTrack() {
+        loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
+    }
+
     audio.addEventListener('ended', nextTrack);
 
+    // 6. Смена иконки
     function setIcon(isPlay) {
         $('playIcon').innerHTML = isPlay
-            ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>' // Иконка паузы
-            : '<path d="M8 5v14l11-7z"/>';         // Иконка плея
+            ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>'
+            : '<path d="M8 5v14l11-7z"/>';
     }
 
-    // HIGHLIGHT
+    // 7. Остальной интерфейс
+    function renderList() {
+        $('trackList').innerHTML = TRACKS.map((t, i) => `
+        <li class="track-item ${i === cur && playing ? 'playing' : ''}" onclick="loadAndPlay(${i})">
+            <div class="eq-icon">
+                <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+            </div>
+            <img class="track-thumb" src="${t.img}">
+            <div class="track-info">
+                <div class="track-name">${t.title}</div>
+                <div class="track-artist">${t.artist}</div>
+            </div>
+            <div class="chevron"></div>
+        </li>
+    `).join('');
+    }
+
     function highlight() {
-
-        document.querySelectorAll('.track-item')
-            .forEach((el, i) => {
-                el.classList.toggle(
-                    'playing',
-                    i === cur && playing
-                );
-            });
+        document.querySelectorAll('.track-item').forEach((el, i) => {
+            el.classList.toggle('playing', i === cur && !audio.paused);
+        });
     }
 
-    // NAVIGATION
     function openTracks() {
-
         renderList();
-
         $('navTitle').innerText = 'Треки';
-
         $('mainScreen').classList.remove('active');
-
         $('trackScreen').classList.add('active');
-
         $('backBtn').style.display = 'block';
     }
 
     function openPlayer() {
-
-        $('navTitle').innerText = TRACKS[cur].title;
-
         $('trackScreen').classList.remove('active');
-
         $('playerScreen').classList.add('active');
     }
 
     function goBack() {
-
         if ($('playerScreen').classList.contains('active')) {
-
             $('playerScreen').classList.remove('active');
-
             $('trackScreen').classList.add('active');
-
             $('navTitle').innerText = 'Треки';
-
             highlight();
-
         } else {
-
             $('trackScreen').classList.remove('active');
-
             $('mainScreen').classList.add('active');
-
             $('navTitle').innerText = 'MORGENSHTERN';
-
             $('backBtn').style.display = 'none';
         }
     }
 
-    // EXIT
-    function exitApp() {
+    // Перемотка кликом
+    $('seekBar').addEventListener('click', e => {
+        if (isNaN(audio.duration)) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    });
 
-        window.close();
+    // Громкость
+    $('volTrack').addEventListener('click', e => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const vol = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        audio.volume = vol;
+        $('volFill').style.width = (vol * 100) + '%';
+    });
 
-        setTimeout(() => {
-            location.href = 'about:blank';
-        }, 100);
+    // Фикс скролла iOS
+    document.addEventListener('touchmove', e => {
+        if (!e.target.closest('.screen')) e.preventDefault();
+    }, { passive: false });
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
     }
-
-    // IOS FIX
-    document.addEventListener(
-        'touchmove',
-        e => {
-            if (!e.target.closest('.screen')) {
-                e.preventDefault();
-            }
-        },
-        { passive:false }
-    );
 </script>
 </body>
 </html>
