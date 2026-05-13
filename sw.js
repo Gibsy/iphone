@@ -1,6 +1,5 @@
-const CACHE_NAME = 'morgen-v5';
+const CACHE_NAME = 'morgen-v6';
 
-// ВАЖНО: Убедись, что эти пути ТОЧНО совпадают с твоей структурой папок
 const ASSETS = [
     './',
     './index.html',
@@ -10,61 +9,46 @@ const ASSETS = [
     './img/ice.jpg',
     './img/cadillac.jpg',
     './img/dulo.jpg',
-    './video/ice.mp4',
-    './video/cadillac.mp4',
-    './video/dulo.mp4',
     './manifest.json'
+    // ⚠️ mp4 файлы НЕ кешируем — iOS 12 не умеет отдавать Range-запросы из кеша
 ];
 
-// Установка: Кешируем всё подряд
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('SW: Кешируем ресурсы...');
-            // Используем addAll, но если один файл упадет, упадет всё.
-            // Для надежности можно кешировать по одному:
             return Promise.all(
-                ASSETS.map(url => {
-                    return cache.add(url).catch(err => console.error('SW: Не удалось загрузить:', url, err));
-                })
+                ASSETS.map(url =>
+                    cache.add(url).catch(err => console.error('SW: не загружено:', url, err))
+                )
             );
         })
     );
     self.skipWaiting();
 });
 
-// Активация
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                keys.map((key) => {
-                    if (key !== CACHE_NAME) return caches.delete(key);
-                })
-            );
-        })
+        caches.keys().then((keys) =>
+            Promise.all(keys.map((key) => {
+                if (key !== CACHE_NAME) return caches.delete(key);
+            }))
+        )
     );
     self.clients.claim();
 });
 
-// Перехват запросов (Стратегия: Сначала Кеш, потом Сеть)
 self.addEventListener('fetch', (event) => {
-    // Особая обработка для видео из-за Range запросов в Safari
-    if (event.request.url.includes('.mp4')) {
-        event.respondWith(
-            caches.match(event.request).then((matchedResponse) => {
-                if (matchedResponse) return matchedResponse;
+    const url = event.request.url;
 
-                return fetch(event.request).then((networkResponse) => {
-                    return networkResponse;
-                });
-            })
-        );
-    } else {
-        event.respondWith(
-            caches.match(event.request).then((response) => {
-                return response || fetch(event.request);
-            })
-        );
+    // ⚠️ mp4 — пропускаем мимо кеша напрямую к серверу
+    // iOS 12 требует правильные Range-ответы (206 Partial Content), которые SW не умеет эмулировать
+    if (url.includes('.mp4')) {
+        return; // браузер сам обратится к серверу
     }
+
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
 });
