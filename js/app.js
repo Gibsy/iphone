@@ -9,13 +9,11 @@ const TRACKS = [
 let currentAudio = null;
 
 function playTrack(track) {
-    // Останавливаем предыдущий
     if (currentAudio) {
         currentAudio.pause();
         currentAudio = null;
     }
 
-    // Показываем экран трека
     $('playerImg').src = track.bigImg;
     $('playerTitle').innerText = track.title;
     $('playerArtist').innerText = track.artist;
@@ -27,7 +25,6 @@ function playTrack(track) {
     $('playerScreen').classList.add('active');
     $('backBtn').style.display = 'block';
 
-    // Запускаем аудио
     currentAudio = new Audio(track.audio);
     currentAudio.play().catch(err => console.warn('Autoplay blocked:', err));
 }
@@ -73,7 +70,6 @@ function goBack() {
         return;
     }
 
-    // Иначе — на главную, останавливаем аудио
     if (currentAudio) {
         currentAudio.pause();
         currentAudio = null;
