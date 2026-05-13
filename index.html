@@ -24,27 +24,27 @@
             <div class="cover-wrap"><img src="img/morgen.jpg" alt=""></div>
             <div class="main-title">MORGENSHTERN</div>
             <div class="main-sub">Слушать бесплатно без интернет соединения</div>
-
-            <div class="main-btn" onclick="openTracks()">
-                <span>Слушать моргенштерн</span>
-            </div>
-
-            <div class="main-btn" onclick="openAuthors()">
-                <span>Авторы</span>
-            </div>
-
-            <div class="main-btn" onclick="location.reload()">
-                <span>Выйти</span>
-            </div>
+            <div class="main-btn" onclick="openTracks()"><span>Слушать моргенштерн</span></div>
+            <div class="main-btn" onclick="openAuthors()"><span>Авторы</span></div>
+            <div class="main-btn" onclick="location.reload()"><span>Выйти</span></div>
         </div>
     </div>
 
-    <!-- Экран списка -->
+    <!-- Экран списка треков -->
     <div class="screen" id="trackScreen">
         <ul class="track-list" id="trackList"></ul>
     </div>
 
-    <!-- ЭКРАН АВТОРОВ -->
+    <!-- Экран плеера -->
+    <div class="screen" id="playerScreen">
+        <div class="player-content">
+            <img id="playerImg" src="" alt="" class="player-cover">
+            <div class="player-title" id="playerTitle"></div>
+            <div class="player-artist" id="playerArtist"></div>
+        </div>
+    </div>
+
+    <!-- Экран авторов -->
     <div class="screen" id="AuthorsScreen">
         <div class="main-content">
             <div class="main-title" style="margin-top:20px">Разработчики</div>
@@ -55,8 +55,6 @@
         </div>
     </div>
 </div>
-
-<!-- Видео-плеер создаётся динамически через JS -->
 
 <script src="js/app.js"></script>
 </body>
