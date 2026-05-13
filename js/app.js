@@ -75,9 +75,7 @@ document.addEventListener('touchmove', e => {
 }, { passive: false });
 
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker зарегистрирован!'))
-            .catch(err => console.log('Ошибка SW:', err));
-    });
+    navigator.serviceWorker.register('./sw.js') // точка важна
+        .then(() => console.log("SW загружен"))
+        .catch(err => console.log("Ошибка SW:", err));
 }
