@@ -1,9 +1,9 @@
 const $ = id => document.getElementById(id);
 
 const TRACKS = [
-    { title:'ICE', artist:'MORGENSHTERN', img:'img/ice.jpg', audio:'audio/ice.mp3' },
-    { title:'Cadillac', artist:'MORGENSHTERN', img:'img/cadillac.jpg', audio:'audio/cadillac.mp3' },
-    { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg', audio:'audio/dulo.mp3' }
+    { title:'ICE', artist:'MORGENSHTERN', img:'img/ice.jpg', bigImg:'img/iceBIG.jpg', audio:'audio/ice.mp3' },
+    { title:'Cadillac', artist:'MORGENSHTERN', img:'img/cadillac.jpg', bigImg:'img/cadillacBIG.jpg', audio:'audio/cadillac.mp3' },
+    { title:'Дуло', artist:'MORGENSHTERN', img:'img/dulo.jpg', bigImg:'img/duloBIG.jpg', audio:'audio/dulo.mp3' }
 ];
 
 let currentAudio = null;
@@ -16,7 +16,7 @@ function playTrack(track) {
     }
 
     // Показываем экран трека
-    $('playerImg').src = track.img;
+    $('playerImg').src = track.bigImg;
     $('playerTitle').innerText = track.title;
     $('playerArtist').innerText = track.artist;
 
