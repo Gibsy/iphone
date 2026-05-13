@@ -28,9 +28,9 @@
                 <span>Слушать моргенштерн</span>
             </div>
 
-            <a href="https://github.com/Gibsy" target="_blank" class="main-btn">
+            <div class="main-btn" onclick="openAuthors()">
                 <span>Авторы</span>
-            </a>
+            </div>
 
             <div class="main-btn" onclick="location.reload()">
                 <span>Выйти</span>
@@ -42,9 +42,21 @@
     <div class="screen" id="trackScreen">
         <ul class="track-list" id="trackList"></ul>
     </div>
+
+    <!-- ЭКРАН АВТОРОВ -->
+    <div class="screen" id="AuthorsScreen">
+        <div class="main-content">
+            <div class="main-title" style="margin-top:20px">Разработчики</div>
+            <p style="color: #8a9aaa; padding: 20px;">
+                Design & Code by Gibsy<br><br>
+                Специально для Mangystau Cyber-Security Student Project.
+            </p>
+        </div>
+    </div>
 </div>
 
-<script src="js/app.js"></script>
+<video id="videoPlayer" style="display:none;" controls playsinline></video>
 
+<script src="js/app.js"></script>
 </body>
 </html>

@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32cc3588-31c3-42e4-9674-f2bd3501c15b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/audio/ice.mp4" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/app.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
     </list>
@@ -73,11 +73,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\gibsy\iphone\audio" />
       <recent name="C:\Users\gibsy\iphone\music" />
       <recent name="C:\Users\gibsy\iphone\video" />
       <recent name="C:\Users\gibsy\iphone\img" />
       <recent name="C:\Users\gibsy\iphone" />
-      <recent name="C:\Users\gibsy\iphone\iphone" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -95,7 +95,7 @@
       <option name="presentableId" value="Default" />
       <updated>1778597252283</updated>
       <workItem from="1778597253316" duration="12129000" />
-      <workItem from="1778654050003" duration="7612000" />
+      <workItem from="1778654050003" duration="8528000" />
     </task>
     <servers />
   </component>
