@@ -468,7 +468,7 @@
     }
 
     // ── Загрузка и воспроизведение ─────────────────────────────────────────────
-    async function loadAndPlay(idx) {
+    function loadAndPlay(idx) {
         curIdx = idx;
         const t = TRACKS[idx];
 
@@ -478,28 +478,28 @@
         document.getElementById('discArt').src = t.img;
         openPlayer();
 
-        // iOS: play() ДОЛЖЕН быть синхронно после тапа, без await перед ним
-        // Сначала играем из файла напрямую
+        // Сначала пробуем играть из обычного src (синхронно — iOS разрешит)
         audio.pause();
         audio.src = t.src;
-        audio.load();
         audio.play().then(() => {
             isPlaying = true;
             setPlayIcon(true);
             document.getElementById('disc').classList.add('spinning');
             updateListHighlight();
-        }).catch(e => console.warn(e));
-
-        // Фоново: если трек есть в IndexedDB и ещё не начал играть — подменяем на blob
-        try {
-            const db   = await openDB();
-            const blob = await dbGet(db, t.src);
-            if (blob && audio.paused) {
-                audio.src = URL.createObjectURL(blob);
-                audio.load();
-                audio.play().catch(e => console.warn(e));
-            }
-        } catch(e) {}
+        }).catch(() => {
+            // Сеть недоступна — пробуем blob из IndexedDB
+            openDB().then(db => dbGet(db, t.src)).then(blob => {
+                if (blob) {
+                    audio.src = URL.createObjectURL(blob);
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        setPlayIcon(true);
+                        document.getElementById('disc').classList.add('spinning');
+                        updateListHighlight();
+                    }).catch(e => console.warn(e));
+                }
+            }).catch(e => console.warn(e));
+        });
     }
 
     function togglePlay() {
@@ -534,6 +534,7 @@
     });
 
     function fmt(s) {
+        if (!s || !isFinite(s)) return '0:00';
         const m = Math.floor(s / 60), sec = Math.floor(s % 60);
         return `${m}:${sec.toString().padStart(2,'0')}`;
     }
