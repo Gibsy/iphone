@@ -31,18 +31,6 @@
         }
         .app { width: 100%; height: 100dvh; display: flex; flex-direction: column; }
 
-        /* Safe-area снизу — закрашиваем под домашней кнопкой */
-        .screen.active::after {
-            content: '';
-            display: block;
-            height: env(safe-area-inset-bottom, 0px);
-            flex-shrink: 0;
-        }
-        /* Каждый экран тянет свой цвет в зону safe-area */
-        .main-screen    { background-color: #2a2f38; padding-bottom: env(safe-area-inset-bottom, 0px); }
-        .screen#trackScreen { background-color: #1c1f24; padding-bottom: env(safe-area-inset-bottom, 0px); }
-        .player-screen  { background-color: #0e1014; padding-bottom: env(safe-area-inset-bottom, 0px); }
-
         /* ── Навбар ─────────────────────────────────────────────── */
         .navbar {
             height: 44px; background: var(--nav);
@@ -60,7 +48,6 @@
             border: 1px solid #314a6b; border-radius: 5px; display: none;
             text-shadow: 0 -1px 0 rgba(0,0,0,.6);
             box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1px 2px rgba(0,0,0,.4);
-            clip-path: polygon(10px 0%, 100% 0%, 100% 100%, 10px 100%, 0% 50%);
             transition: filter .1s;
         }
         .back-btn:active { filter: brightness(.8); }
@@ -71,7 +58,7 @@
 
         /* ── Главный экран ──────────────────────────────────────── */
         .main-screen {
-            background: linear-gradient(180deg, #3a404a 0%, #2a2f38 100%) no-repeat, #2a2f38;
+            background: linear-gradient(180deg, #3a404a 0%, #2a2f38 100%);
         }
         .main-content { padding: 24px 20px; text-align: center; }
         .main-title {
@@ -303,7 +290,7 @@
 <body>
 <div class="app">
     <div class="navbar">
-        <div class="back-btn" id="backBtn" onclick="goBack()">◀ Назад</div>
+        <div class="back-btn" id="backBtn" onclick="goBack()">Назад</div>
         <div class="nav-title" id="navTitle">MORGENSHTERN</div>
     </div>
 
@@ -317,17 +304,17 @@
             <div class="main-sub">Музыка без интернета</div>
 
             <a href="#" class="main-btn" onclick="openTracks()">
-                <span class="btn-icon">🎵</span>
+                <span class="btn-icon"></span>
                 <span>Слушать треки</span>
                 <span class="btn-arrow">›</span>
             </a>
             <a href="https://github.com/Gibsy" target="_blank" class="main-btn">
-                <span class="btn-icon">👤</span>
+                <span class="btn-icon"></span>
                 <span>Авторы</span>
                 <span class="btn-arrow">›</span>
             </a>
             <a href="#" class="main-btn" onclick="exitApp()">
-                <span class="btn-icon">✕</span>
+                <span class="btn-icon"></span>
                 <span>Выход</span>
                 <span class="btn-arrow"></span>
             </a>
