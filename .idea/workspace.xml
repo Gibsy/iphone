@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32cc3588-31c3-42e4-9674-f2bd3501c15b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/audio/cadillac.mp3" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/audio/dulo.mp3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/app.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,10 +77,10 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\gibsy\iphone\audio" />
+      <recent name="C:\Users\gibsy\iphone\img" />
       <recent name="C:\Users\gibsy\iphone" />
       <recent name="C:\Users\gibsy\iphone\video" />
       <recent name="C:\Users\gibsy\iphone\music" />
-      <recent name="C:\Users\gibsy\iphone\img" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -98,7 +99,7 @@
       <updated>1778597252283</updated>
       <workItem from="1778597253316" duration="12129000" />
       <workItem from="1778654050003" duration="11147000" />
-      <workItem from="1778666096836" duration="2501000" />
+      <workItem from="1778666096836" duration="2917000" />
     </task>
     <servers />
   </component>
