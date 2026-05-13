@@ -160,7 +160,7 @@
 <body>
 <div class="app">
     <div class="navbar">
-        <div class="back-btn" id="backBtn" onclick="goBack()">◀ Назад</div>
+        <div class="back-btn" id="backBtn" onclick="goBack()">Назад</div>
         <div class="nav-title" id="navTitle">MORGENSHTERN</div>
     </div>
 
@@ -207,153 +207,271 @@
     </div>
 </div>
 
-<audio id="audio"></audio>
+<audio id="audio" playsinline preload="metadata"></audio>
 
 <script>
     const TRACKS = [
-        { title: 'ICE',      artist: 'MORGENSHTERN', src: '/audio/ice.mp3',      img: 'img/ice.jpg' },
-        { title: 'Cadillac', artist: 'MORGENSHTERN', src: '/audio/cadillac.mp3', img: 'img/cadillac.jpg' },
-        { title: 'Дуло',     artist: 'MORGENSHTERN', src: '/audio/dulo.mp3',     img: 'img/dulo.jpg' },
+        { title:'ICE', artist:'MORGENSHTERN', src:'/audio/ice.mp3', img:'img/ice.jpg' },
+        { title:'Cadillac', artist:'MORGENSHTERN', src:'/audio/cadillac.mp3', img:'img/cadillac.jpg' },
+        { title:'Дуло', artist:'MORGENSHTERN', src:'/audio/dulo.mp3', img:'img/dulo.jpg' }
     ];
 
     const audio = document.getElementById('audio');
     const $ = id => document.getElementById(id);
-    let cur = 0, playing = false;
 
-    // SW
+    let cur = 0;
+    let playing = false;
+
+    // SERVICE WORKER
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').then(reg => {
-            const sw = reg.installing || reg.waiting || reg.active;
-            if (reg.active) cacheAudio();
-            else sw.addEventListener('statechange', e => { if (e.target.state === 'activated') cacheAudio(); });
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .catch(console.error);
         });
     }
 
-    async function cacheAudio() {
-        const cache = await caches.open('audio-v1');
-        let done = 0, needDl = false;
-        for (const t of TRACKS) { if (!await cache.match(t.src)) { needDl = true; break; } }
-        if (needDl) $('dlBar').style.display = 'block';
-        for (const t of TRACKS) {
-            if (!await cache.match(t.src)) {
-                try { await cache.add(t.src); } catch(e) { console.warn(e); }
-            }
-            done++;
-            $('dlFill').style.width = Math.round(done / TRACKS.length * 100) + '%';
-            $('dlLabel').textContent = done < TRACKS.length ? `Сохраняем… ${done}/${TRACKS.length}` : 'Треки готовы ✓';
-        }
-        setTimeout(() => $('dlBar').style.display = 'none', 2000);
-    }
-
+    // RENDER TRACKS
     function renderList() {
-        const ul = $('trackList');
-        ul.innerHTML = '';
-        TRACKS.forEach((t, i) => {
-            const li = document.createElement('li');
-            li.className = 'track-item' + (i === cur && playing ? ' playing' : '');
-            li.onclick = () => loadAndPlay(i);
-            li.innerHTML = `<div class="eq-icon"><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div></div>
+        $('trackList').innerHTML = TRACKS.map((t, i) => `
+        <li class="track-item ${i === cur && playing ? 'playing' : ''}" onclick="loadAndPlay(${i})">
+            <div class="eq-icon">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+            </div>
+
             <img class="track-thumb" src="${t.img}" alt="">
-            <div class="track-info"><div class="track-name">${t.title}</div><div class="track-artist">${t.artist}</div></div>
-            <div class="chevron"></div>`;
-            ul.appendChild(li);
-        });
+
+            <div class="track-info">
+                <div class="track-name">${t.title}</div>
+                <div class="track-artist">${t.artist}</div>
+            </div>
+
+            <div class="chevron"></div>
+        </li>
+    `).join('');
     }
 
-    function loadAndPlay(idx) {
-        cur = idx;
-        const t = TRACKS[idx];
-        $('playerTitle').textContent  = t.title;
+    // LOAD TRACK
+    function loadAndPlay(i) {
+        cur = i;
+
+        const t = TRACKS[i];
+
+        $('playerTitle').textContent = t.title;
         $('playerArtist').textContent = t.artist;
         $('discArt').src = t.img;
+
         openPlayer();
 
-        audio.src = t.src;
-        audio.play().then(() => {
-            playing = true;
-            setIcon(true);
-            $('disc').classList.add('spinning');
-            highlight();
-        }).catch(e => console.warn(e));
-    }
+        // ВАЖНО ДЛЯ iOS
+        audio.pause();
 
-    function togglePlay() {
-        if (audio.paused) {
-            audio.play().then(() => { playing = true; setIcon(true); $('disc').classList.add('spinning'); highlight(); });
-        } else {
-            audio.pause(); playing = false; setIcon(false); $('disc').classList.remove('spinning'); highlight();
+        audio.src = t.src;
+
+        audio.load();
+
+        const playPromise = audio.play();
+
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                playing = true;
+
+                setIcon(true);
+
+                $('disc').classList.add('spinning');
+
+                highlight();
+            }).catch(err => {
+                console.error(err);
+            });
         }
     }
 
-    function prevTrack() { loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length); }
-    function nextTrack() { loadAndPlay((cur + 1) % TRACKS.length); }
+    // PLAY / PAUSE
+    function togglePlay() {
+
+        if (audio.paused) {
+
+            const p = audio.play();
+
+            if (p !== undefined) {
+                p.then(() => {
+                    playing = true;
+
+                    setIcon(true);
+
+                    $('disc').classList.add('spinning');
+
+                    highlight();
+                }).catch(console.error);
+            }
+
+        } else {
+
+            audio.pause();
+
+            playing = false;
+
+            setIcon(false);
+
+            $('disc').classList.remove('spinning');
+
+            highlight();
+        }
+    }
+
+    // NEXT / PREV
+    function prevTrack() {
+        loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
+    }
+
+    function nextTrack() {
+        loadAndPlay((cur + 1) % TRACKS.length);
+    }
+
     audio.addEventListener('ended', nextTrack);
 
+    // PROGRESS
     audio.addEventListener('timeupdate', () => {
-        const d = audio.duration, c = audio.currentTime;
-        if (!d || !isFinite(d)) return;
-        $('seekFill').style.width = (c / d * 100) + '%';
-        $('timeNow').textContent   = fmt(c);
-        $('timeTotal').textContent = fmt(d);
+
+        if (!audio.duration || !isFinite(audio.duration)) return;
+
+        const percent = audio.currentTime / audio.duration * 100;
+
+        $('seekFill').style.width = percent + '%';
+
+        $('timeNow').textContent = formatTime(audio.currentTime);
+
+        $('timeTotal').textContent = formatTime(audio.duration);
     });
 
-    function fmt(s) {
-        s = Math.floor(s);
-        return Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + (s % 60);
-    }
-
+    // SEEK
     $('seekBar').addEventListener('click', e => {
+
         if (!audio.duration) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        audio.currentTime = (e.clientX - r.left) / r.width * audio.duration;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        const percent = (e.clientX - rect.left) / rect.width;
+
+        audio.currentTime = percent * audio.duration;
     });
 
+    // VOLUME
     $('volTrack').addEventListener('click', e => {
-        const r = e.currentTarget.getBoundingClientRect();
-        const v = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-        audio.volume = v;
-        $('volFill').style.width = v * 100 + '%';
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        const volume = Math.max(
+            0,
+            Math.min(1, (e.clientX - rect.left) / rect.width)
+        );
+
+        audio.volume = volume;
+
+        $('volFill').style.width = volume * 100 + '%';
     });
 
-    function setIcon(p) {
-        $('playIcon').innerHTML = p ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>' : '<path d="M8 5v14l11-7z"/>';
-    }
-    function highlight() {
-        document.querySelectorAll('.track-item').forEach((el, i) => el.classList.toggle('playing', i === cur && playing));
+    // FORMAT TIME
+    function formatTime(s) {
+
+        s = Math.floor(s);
+
+        const m = Math.floor(s / 60);
+
+        const sec = s % 60;
+
+        return `${m}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
+    // ICON
+    function setIcon(play) {
+
+        $('playIcon').innerHTML = play
+            ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>'
+            : '<path d="M8 5v14l11-7z"/>';
+    }
+
+    // HIGHLIGHT
+    function highlight() {
+
+        document.querySelectorAll('.track-item')
+            .forEach((el, i) => {
+                el.classList.toggle(
+                    'playing',
+                    i === cur && playing
+                );
+            });
+    }
+
+    // NAVIGATION
     function openTracks() {
+
         renderList();
+
         $('navTitle').innerText = 'Треки';
+
         $('mainScreen').classList.remove('active');
+
         $('trackScreen').classList.add('active');
-        document.body.style.background = '#1c1f24';
+
         $('backBtn').style.display = 'block';
     }
+
     function openPlayer() {
+
         $('navTitle').innerText = TRACKS[cur].title;
+
         $('trackScreen').classList.remove('active');
+
         $('playerScreen').classList.add('active');
-        document.body.style.background = '#0e1014';
-        $('backBtn').style.display = 'block';
     }
+
     function goBack() {
+
         if ($('playerScreen').classList.contains('active')) {
+
             $('playerScreen').classList.remove('active');
+
             $('trackScreen').classList.add('active');
+
             $('navTitle').innerText = 'Треки';
-            document.body.style.background = '#1c1f24';
+
             highlight();
+
         } else {
+
             $('trackScreen').classList.remove('active');
+
             $('mainScreen').classList.add('active');
+
             $('navTitle').innerText = 'MORGENSHTERN';
-            document.body.style.background = '#2a2f38';
+
             $('backBtn').style.display = 'none';
         }
     }
-    function exitApp() { window.close(); setTimeout(() => location.href = 'about:blank', 100); }
-    document.addEventListener('touchmove', e => { if (!e.target.closest('.screen')) e.preventDefault(); }, { passive: false });
+
+    // EXIT
+    function exitApp() {
+
+        window.close();
+
+        setTimeout(() => {
+            location.href = 'about:blank';
+        }, 100);
+    }
+
+    // IOS FIX
+    document.addEventListener(
+        'touchmove',
+        e => {
+            if (!e.target.closest('.screen')) {
+                e.preventDefault();
+            }
+        },
+        { passive:false }
+    );
 </script>
 </body>
 </html>
