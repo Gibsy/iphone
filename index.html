@@ -215,186 +215,105 @@
 
 <script>
 
-    document.addEventListener('touchstart', function() {
-        if (audio.src === "") { // Только если еще ничего не загружено
-            audio.play().then(() => audio.pause());
-        }
-    }, { once: true });
-
-    const TRACKS = [
-        { title:'ICE', artist:'MORGENSHTERN', src:'https://gibsy.site/iphone/audio/ice.mp3', img:'img/ice.jpg' },
-        { title:'Cadillac', artist:'MORGENSHTERN', src:'/audio/cadillac.mp3', img:'img/cadillac.jpg' },
-        { title:'Дуло', artist:'MORGENSHTERN', src:'/audio/dulo.mp3', img:'img/dulo.jpg' }
-    ];
-
     const audio = document.getElementById('audio');
     const $ = id => document.getElementById(id);
+
+    const TRACKS = [
+        { title:'ICE', artist:'MORGENSHTERN', src:'audio/ice.mp3', img:'img/ice.jpg' },
+        { title:'Cadillac', artist:'MORGENSHTERN', src:'audio/cadillac.mp3', img:'img/cadillac.jpg' },
+        { title:'Дуло', artist:'MORGENSHTERN', src:'audio/dulo.mp3', img:'img/dulo.jpg' }
+    ];
 
     let cur = 0;
     let playing = false;
 
-    // SERVICE WORKER
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
-                .catch(console.error);
-        });
-    }
+    // 1. Фикс для iOS: разблокировка аудио по первому тапу
+    document.addEventListener('touchstart', function() {
+        if (!audio.src || audio.src === "") {
+            audio.src = TRACKS[0].src;
+            audio.load();
+            audio.play().then(() => audio.pause());
+        }
+    }, { once: true });
 
-    // RENDER TRACKS
-    function renderList() {
-        $('trackList').innerHTML = TRACKS.map((t, i) => `
-        <li class="track-item ${i === cur && playing ? 'playing' : ''}" onclick="loadAndPlay(${i})">
-            <div class="eq-icon">
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-                <div class="eq-bar"></div>
-            </div>
-
-            <img class="track-thumb" src="${t.img}" alt="">
-
-            <div class="track-info">
-                <div class="track-name">${t.title}</div>
-                <div class="track-artist">${t.artist}</div>
-            </div>
-
-            <div class="chevron"></div>
-        </li>
-    `).join('');
-    }
-
-    // LOAD TRACK
+    // 2. Единая функция загрузки и воспроизведения
     function loadAndPlay(i) {
         cur = i;
-
         const t = TRACKS[i];
 
-        $('playerTitle').textContent = t.title;
-        $('playerArtist').textContent = t.artist;
-        $('discArt').src = t.img;
-
-        openPlayer();
-
-        // ВАЖНО ДЛЯ iOS
-        audio.pause();
-
+        // Приоритет 1: Запуск звука
         audio.src = t.src;
-
         audio.load();
 
         const playPromise = audio.play();
 
+        // Приоритет 2: Обновление интерфейса
         if (playPromise !== undefined) {
             playPromise.then(() => {
                 playing = true;
-
-                setIcon(true);
-
-                $('disc').classList.add('spinning');
-
-                highlight();
+                updateUI(t);
             }).catch(err => {
-                console.error(err);
+                console.log("Playback error:", err);
+                // Если автоплей заблокирован, всё равно открываем плеер
+                updateUI(t);
             });
         }
     }
 
-    // PLAY / PAUSE
-    function loadAndPlay(i) {
-        cur = i;
-        const t = TRACKS[i];
-
-        // 1. Сразу меняем источник и запускаем (самый высокий приоритет)
-        audio.src = t.src;
-        audio.load();
-        const playPromise = audio.play();
-
-        // 2. Пока он начинает играть, меняем интерфейс (это может занять время на старом CPU)
+    function updateUI(t) {
         $('playerTitle').textContent = t.title;
         $('playerArtist').textContent = t.artist;
         $('discArt').src = t.img;
+        $('navTitle').innerText = t.title;
+        setIcon(true);
+        $('disc').classList.add('spinning');
         openPlayer();
+        highlight();
+    }
 
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                playing = true;
-                setIcon(true);
-                $('disc').classList.add('spinning');
-                highlight();
-            }).catch(err => alert(err));
+    // 3. Исправленная функция Паузы/Плея
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            playing = true;
+            setIcon(true);
+            $('disc').classList.add('spinning');
+        } else {
+            audio.pause();
+            playing = false;
+            setIcon(false);
+            $('disc').classList.remove('spinning');
         }
+        highlight();
     }
 
-    // NEXT / PREV
-    function prevTrack() {
-        loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
-    }
-
-    function nextTrack() {
-        loadAndPlay((cur + 1) % TRACKS.length);
-    }
-
-    audio.addEventListener('ended', nextTrack);
-
-    // PROGRESS
+    // 4. Корректный таймлайн
     audio.addEventListener('timeupdate', () => {
+        if (isNaN(audio.duration)) return;
 
-        if (!audio.duration || !isFinite(audio.duration)) return;
-
-        const percent = audio.currentTime / audio.duration * 100;
-
+        const percent = (audio.currentTime / audio.duration) * 100;
         $('seekFill').style.width = percent + '%';
 
         $('timeNow').textContent = formatTime(audio.currentTime);
-
         $('timeTotal').textContent = formatTime(audio.duration);
     });
 
-    // SEEK
-    $('seekBar').addEventListener('click', e => {
-
-        if (!audio.duration) return;
-
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        const percent = (e.clientX - rect.left) / rect.width;
-
-        audio.currentTime = percent * audio.duration;
-    });
-
-    // VOLUME
-    $('volTrack').addEventListener('click', e => {
-
-        const rect = e.currentTarget.getBoundingClientRect();
-
-        const volume = Math.max(
-            0,
-            Math.min(1, (e.clientX - rect.left) / rect.width)
-        );
-
-        audio.volume = volume;
-
-        $('volFill').style.width = volume * 100 + '%';
-    });
-
-    // FORMAT TIME
     function formatTime(s) {
-
-        s = Math.floor(s);
-
-        const m = Math.floor(s / 60);
-
-        const sec = s % 60;
-
-        return `${m}:${sec < 10 ? '0' : ''}${sec}`;
+        if (isNaN(s)) return "0:00";
+        let m = Math.floor(s / 60);
+        let sec = Math.floor(s % 60);
+        return m + ":" + (sec < 10 ? '0' : '') + sec;
     }
 
-    // ICON
-    function setIcon(play) {
+    // 5. Навигация и прочее
+    function nextTrack() { loadAndPlay((cur + 1) % TRACKS.length); }
+    function prevTrack() { loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length); }
+    audio.addEventListener('ended', nextTrack);
 
-        $('playIcon').innerHTML = play
-            ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>'
-            : '<path d="M8 5v14l11-7z"/>';
+    function setIcon(isPlay) {
+        $('playIcon').innerHTML = isPlay
+            ? '<path d="M6 19h4V5H6zm8-14v14h4V5z"/>' // Иконка паузы
+            : '<path d="M8 5v14l11-7z"/>';         // Иконка плея
     }
 
     // HIGHLIGHT
