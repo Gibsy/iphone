@@ -8,13 +8,27 @@ const TRACKS = [
 
 function playVideo(url) {
     const v = $('videoPlayer');
+
+    // Сбрасываем текущее состояние
+    v.pause();
     v.src = url;
-    // webkitEnterFullscreen — это магия для старых iPhone,
-    // которая кидает видео сразу в нативный плеер
-    v.play();
-    if (v.webkitEnterFullscreen) {
-        v.webkitEnterFullscreen();
-    }
+    v.load();
+
+    // Магия для iOS: ждем готовности метаданных и кидаем в фуллскрин
+    const startFullscreen = () => {
+        if (v.webkitEnterFullscreen) {
+            v.webkitEnterFullscreen();
+        } else if (v.requestFullscreen) {
+            v.requestFullscreen();
+        }
+        v.play();
+        v.removeEventListener('loadedmetadata', startFullscreen);
+    };
+
+    v.addEventListener('loadedmetadata', startFullscreen);
+
+    // Попытка запустить сразу для скорости
+    v.play().catch(err => console.log("Ждем загрузки..."));
 }
 
 function renderList() {
