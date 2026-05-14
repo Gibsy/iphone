@@ -91,3 +91,37 @@ if ('serviceWorker' in navigator) {
         .then(() => console.log("SW загружен"))
         .catch(err => console.log("Ошибка SW:", err));
 }
+
+function openGif() {
+    $('navTitle').innerText = 'Bye Bye';
+    $('mainScreen').classList.remove('active');
+    $('trackScreen').classList.remove('active');
+    $('playerScreen').classList.remove('active');
+    $('AuthorsScreen').classList.remove('active');
+
+    $('gifScreen').classList.add('active');
+    $('backBtn').style.display = 'block';
+}
+
+function goBack() {
+    if ($('playerScreen').classList.contains('active')) {
+        $('playerScreen').classList.remove('active');
+        $('trackScreen').classList.add('active');
+        $('navTitle').innerText = 'Треки';
+        return;
+    }
+
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    $('trackScreen').classList.remove('active');
+    $('AuthorsScreen').classList.remove('active');
+    $('playerScreen').classList.remove('active');
+    $('gifScreen').classList.remove('active'); // Добавлено сюда
+
+    $('mainScreen').classList.add('active');
+    $('navTitle').innerText = 'MORGENSHTERN';
+    $('backBtn').style.display = 'none';
+}

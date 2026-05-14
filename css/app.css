@@ -42,11 +42,12 @@ body, html {
 .main-sub { color: #8a9aaa; font-size: 13px; margin-bottom: 22px; }
 
 .main-btn {
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; justify-content: center;
     width: 90%; max-width: 300px; margin: 10px auto; padding: 0 14px; height: 46px;
     background: linear-gradient(to bottom, #565e6a, #3e444f);
     border: 1px solid #2a2f38; border-radius: 10px;
     font-size: 16px; font-weight: bold; color: #e8eef5; text-decoration: none;
+    text-align: center;
 }
 .main-btn:active { filter: brightness(.75); transform: scale(.97); }
 
@@ -90,4 +91,30 @@ body, html {
     font-size: 16px;
     color: #8a9aaa;
     text-align: center;
+}
+
+#gifScreen {
+    display: none; /* Скрыт по умолчанию */
+}
+
+#gifScreen.active {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0; /* Добавь */
+    bottom: 0; /* Добавь */
+    width: 100%; /* Вместо 100vw для стабильности */
+    height: 100%; /* Вместо 100vh */
+    z-index: 9999;
+    background: #000;
+    align-items: center;
+    justify-content: center;
+}
+
+#gifScreen img {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
 }
