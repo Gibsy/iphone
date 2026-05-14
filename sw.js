@@ -12,6 +12,7 @@ const ASSETS = [
     './img/cadillacBIG.jpg',
     './img/dulo.jpg',
     './img/duloBIG.jpg',
+    './img/screamer.jpg',
     './audio/ice.mp3',
     './audio/cadillac.mp3',
     './audio/dulo.mp3',
